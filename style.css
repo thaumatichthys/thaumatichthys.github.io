@@ -1,0 +1,203 @@
+/* 
+	henceforth I will refer to hyperlinks, <a></a>, as "link".
+*/
+
+/* sets the parameters of the header. This includes the entire gray portion at the top. */
+.header {
+	/* set the font */
+	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+	/* sets the font colour */
+	color: white;
+	/* sets the header to dimgray */
+	background-color: dimgray;
+	/* moves the content to the right by 10% of the page width */
+	padding-left: 10%;
+}
+
+/* sets the parameters of the text in the header */
+.header-text {
+	/* puts the links on the same Y level as the main title */
+	display: inline-block;
+}
+
+/* sets the parameters of the navbar in the header */
+.navbar-top {
+	/* font type */
+	font-family: helvetica;
+	/* allows the buttons to be on the same Y level as the other text */
+	display: inline-block;
+	/* the buttons are too high, so move them to the bottom of their level */
+	vertical-align: bottom;
+	/* move the buttons a bit farther right */
+	padding-left: 10%;
+	/* move the buttons farther apart */
+	border-spacing: 20px 0px;
+}
+
+/* sets the common parameters for links in the top navbar, aka the buttons */
+/* henceforth, the colour changing area around the buttons is referred to as the shadow */
+.navbar-top a {
+	/* effectively sets the size of the shadow around the link */
+	padding: 5px;
+	/* text colour is set to the same as in the parent class */
+	color: inherit;
+	/* how rounded the edges are of the shadow */
+	border-radius: 10px;
+	/* make the shadows fade in and out */
+	transition-duration: 250ms;
+	/* remove the underline */
+	text-decoration: none;
+}
+
+/* sets the parameters for the links when they are not being hovered over */
+.navbar-top a:link,
+a:visited,
+a:active {
+	/* reset the shadow's colour to its background colour, making it invisible */
+	background-color: inherit;
+}
+
+/* sets the parameters for the buttons when they are hovered over */
+.navbar-top a:hover {
+	/* make the shadow visible */
+	background-color: #404040;
+}
+
+.page {
+	/* if there is little or no text on the page, don't put the footer right under the header */
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+/* the inner, white section of the page */
+.margin-intern {
+	/* center this portion of the page */
+	margin-left: auto;
+	margin-right: auto;
+	/* make this section 80% of the width of the page */
+	width: 80%;
+	/* set the background colour to white */
+	background-color: white;
+	flex-grow: 1;
+}
+
+/* the content, (this is inside margin-intern) */
+.content-main {
+	/* don't put the content right at the edge of the section */
+	padding: 10px;
+	/* set the font */
+	font-family: helvetica;
+	height: 100%;
+}
+
+/* the section that margin-intern resides in, this is the light gray part on the edges of the pages */
+.margin-extern {
+	/* set the background colour to light gray */
+	background-color: lightgray;
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+/* sets parameters for links in content-main */
+.content-main a {
+	/* set transition duration */
+	transition-duration: 125ms;
+	/* set colour to the same as parent */
+	color: inherit;
+}
+
+/* sets the parameters for the links when they are not hovered over */
+.content-main a:link,
+a:visited,
+a:active {
+	/* reset the shadow's colour to its background colour, making it invisible */
+	background-color: inherit;
+	/* set the text colour to the same as parent */
+	color: inherit;
+}
+
+/* sets the parameters for the links when they are hovered over */
+.content-main a:hover {
+	/* don't show the shadow for these */
+	background-color: inherit;
+	/* set text colour to light blue */
+	color: lightblue;
+}
+
+/* set parameters for the h2 content titles */
+.content-title {
+	/* set text colour to 0x303040 */
+	color: #303040;
+}
+
+/* set parameters for the footer; the gray area at the bottom */
+.footer {
+	/* set font */
+	font-family: helvetica;
+	/* center the text */
+	text-align: center;
+	/* text colour set to white */
+	color: white;
+	/* set background colour to dim gray */
+	background-color: dimgray;
+}
+
+/* set parameters for the unordered list navbar */
+.navbar-bottom {
+	/* this allows the points for the UL lines to be centered as well */
+	display: inline-block;
+}
+
+/* "unordered list navbar" == "bottom navbar" */
+
+/* common parameters for the bottom navbar links */
+.navbar-bottom a {
+	/* make the shadow larger */
+	padding: 1px;
+	/* add more padding to the sides */
+	padding-left: 5px;
+	padding-right: 5px;
+	/* same text colour as parent */
+	color: inherit;
+	/* round the corners */
+	border-radius: 4px;
+	/* fade */
+	transition-duration: 250ms;
+	/* remove underline */
+	text-decoration: none;
+}
+
+/* parameters for when the link isn't hovered over */
+.navbar-bottom a:link,
+a:visited,
+a:active {
+	/* "remove" shadow */
+	background-color: inherit;
+}
+
+/* for when link is hovered over */
+.navbar-bottom a:hover {
+	/* make shadow visible */
+	background-color: #404040;
+}
+
+/* set parameters for image type */
+img {
+	/* allow image to be moved/centered */
+	display: block;
+	/* set width to 50% of margin-intern width */
+	max-width: 50%;
+	/* keep aspect ratio of the image */
+	max-height: auto;
+	/* center the image */
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.hidden-text {
+	display: none;
+	background-color: black;
+	color: blue;
+}

@@ -1,6 +1,9 @@
-<!DOCTYPE html>
-<html>
 
+const input_title = document.getElementById("page-title").innerHTML;
+const input_content = document.getElementById("page-content").innerHTML;
+
+const string_template = `<!DOCTYPE html>
+<html>
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
@@ -8,7 +11,6 @@
 	<link rel="icon" type="image/x-icon" href="res/wavelet.png">
 	<link href="style.css" rel="stylesheet" type="text/css" />
 </head>
-
 <body>
 	<script src="script.js"></script>
 
@@ -41,19 +43,11 @@
 		<div class="margin-extern">
 			<div class="margin-intern">
 				<div class="content-main">
-					<h2 class="content-title">
-						Me
+					<h2 class="content-title" id="page-title">
+						CONTENT TITLE!!!!!!!!!!!!!!!!!!!!!!!!!
 					</h2>
-					<p>
-						Hi, my name is Max, and here you can find some of my projects.
-					</p>
-					<p>
-						In general, I like playing with microcontrollers and electronics, although I have no formal
-						education on the subject that extends past high school physics.
-					</p>
-					<img src="res/bear.jpg" alt="image of a bunch of trees and a bear">
-					<p>
-						Note that the above image is not of me.
+					<p class="content-text" id="page-text">
+						CONTENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 					</p>
 				</div>
 			</div>
@@ -65,8 +59,19 @@
 			<h4 class="navbar-bottom"><a href="./disclaimer.html">Disclaimer</a></h4>
 		</div>
 	</div>
-
-
 </body>
+</html>`;
 
-</html>
+const parser = new DOMParser();
+var page_template = parser.parseFromString(string_template, 'text/html');
+
+page_template.getElementById("page-title").innerHTML = input_title;
+page_template.getElementById("page-text").innerHTML = input_content;
+
+console.log(page_template.documentElement.innerHTML)
+
+document.open();
+document.write(page_template.documentElement.innerHTML);
+document.close();
+
+console.log("dodne")
