@@ -30,6 +30,9 @@ const string_template = `<!DOCTYPE html>
                     <td>
 						<h3><a href="./programming.html">Programming</a></h3>
 					</td>
+					<td>
+						<h3><a href="./misc.html">Misc</a></h3>
+					</td>
                     <td>
 						<h3><a href="./contact.html">Contact</a></h3>
 					</td>
@@ -44,10 +47,10 @@ const string_template = `<!DOCTYPE html>
 			<div class="margin-intern">
 				<div class="content-main">
 					<h2 class="content-title" id="page-title">
-						CONTENT TITLE!!!!!!!!!!!!!!!!!!!!!!!!!
+						CONTENT TITLE
 					</h2>
 					<p class="content-text" id="page-text">
-						CONTENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+						CONTENT
 					</p>
 				</div>
 			</div>
@@ -68,10 +71,8 @@ var page_template = parser.parseFromString(string_template, 'text/html');
 page_template.getElementById("page-title").innerHTML = input_title;
 page_template.getElementById("page-text").innerHTML = input_content;
 
-console.log(page_template.documentElement.innerHTML)
-
 document.open();
 document.write(page_template.documentElement.innerHTML);
 document.close();
 
-console.log("dodne")
+console.log("Page loaded through JS")

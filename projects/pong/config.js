@@ -1,0 +1,26 @@
+const GREEN_BAR_HEIGHT = 100; // dont change this plz
+const GREEN_BAR_WIDTH = 20; // also dont change this
+const BANNER_WIDTH = 10;
+const BANNER_HEIGHT = 60;
+const DOT_WIDTH = 10;
+const GAME_SPEED_HZ = 100;
+const UP_KEY = 38;
+const DOWN_KEY = 40;
+const LEFT_KEY = 37;
+const W_KEY = 87;
+const S_KEY = 83;
+const D_KEY = 68;
+const SPACE_key = 32;
+const BALL_START_ANGLE = 20 / (180 / Math.PI);
+const FAST_V_MULTIPLIER = 2;
+const BALL_VELOCITY = 10;
+const MAX_ANGLE = 70 / (180 / Math.PI);
+const PIXELS_PER_MOVEMENT = 15;
+
+const _5pxbluedot = "blue-dot.png";
+const _5pxblacksquare = "res/5px_square.png";
+const _10pxwhitesquare = "res/10px-ball.png";
+const _10x60whiterectangle = "res/10x60-rectangle.png";
+const _greysquare = "res/grey_square.png"
+const _20x100whiterectangle = "res/20x100whiterectangle.png";
+const _5pxwhitedot = "res/white-ball.png";
