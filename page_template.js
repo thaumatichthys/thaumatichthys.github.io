@@ -19,25 +19,24 @@ const string_template = `<!DOCTYPE html>
 			<h1 class="header-text">
 				Thaumatichthys Projects
 			</h1>
-			<br>
 			<div class="navbar-top"> <!-- I think the table looks better than an unordered list -->
 				<div class="navbar-top-cell">
-					<h3><a href="./index.html">About</a></h3>
+					<h3><a href="/index.html">About</a></h3>
 				</div>
 				<div class="navbar-top-cell">
-					<h3><a href="./electronics.html">Electronics</a></h3>
+					<h3><a href="/electronics.html">Electronics</a></h3>
 				</div>
 				<div class="navbar-top-cell">
-					<h3><a href="./programming.html">Programming</a></h3>
+					<h3><a href="/programming.html">Programming</a></h3>
 				</div>
 				<div class="navbar-top-cell">
-					<h3><a href="./misc.html">Misc</a></h3>
+					<h3><a href="/misc.html">Misc</a></h3>
 				</div>
 				<div class="navbar-top-cell">
-					<h3><a href="./contact.html">Contact</a></h3>
+					<h3><a href="/contact.html">Contact</a></h3>
 				</div>
 				<div class="navbar-top-cell">
-					<h3><a href="./disclaimer.html">Disclaimer</a></h3>
+					<h3><a href="/disclaimer.html">Disclaimer</a></h3>
 				</div>
 			</div>
 		</div>

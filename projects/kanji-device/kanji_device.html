@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <div hidden id="page-title">
+        Handwritten Kanji Identification running on RP2040
+    </div>
+    <div hidden id="page-content">
+        <p>
+            I always liked the kanji dictionaries in which you could draw out a kanji, and it would identify it, such as 
+            <a href="https://kanji.sljfaq.org/" target="_blank">this one</a>. This is good, but what if it could be done on relatively
+            cheap, handheld device, that isn't a smartphone? This is arguably a pretty dumb idea, since a smartphone would make
+            this a whole lot easier, while probably being more convenient. Either way, I wondered if this could be done on a 
+            cheap microcontroller.
+        </p>
+        <p>
+            Firstly, I did some research on whether this kind of thing would be easier to implement as a hardcoded algorithm,
+            or as a neural network. Basically, implementing such an algorithm is not a straightforward task, and requires a lot of
+            knowledge in math/computer science, which I do not have.
+        </p>
+        <p>
+            The second, more popular approach is just to train a neural network to do this. While this still requires a lot of 
+            complicated math, there are several frameworks that help automate this process so that even a layperson like me can 
+            train such a neural network.
+        </p>
+        <p>
+            Now that I had decided on using a neural network for identifying handwritten kanjis, I had to pick a framework to use.
+            PyTorch is quite popular, but I am not sure about how well they support low powered devices with limited resources
+            such as microcontrollers. The other choice is Tensorflow. Tensorflow does have a reasonably well known branch made for 
+            smaller devices such as Raspberry Pi's, and it even has a separate branch made specifically for microcontrollers. Because
+            it is more well known, (and honestly not much else), I chose to use Tensorflow for this project.
+        </p>
+        <p>
+            Using the <a href="https://www.tensorflow.org/tutorials/images/classification" target="_blank">Tensorflow image classification tutorial</a>,
+            I was able to reasonably easily build a model that could identify between the images used in the tutorial. (I suppose that
+            is to be expected of a tutorial).
+        </p>
+        <p>
+            (Since Tensorflow changes so often, (and because I don't really know what I am doing), don't expect to be able to copy and paste 
+            and code from here and have it work without modification.)
+        </p>
+        <p>
+            Training data can be in the form of something like this:
+        </p>
+<p class="codebox">-> root
+    -> class1
+        -> data1
+        -> data2
+        -> ...
+    -> class2
+        -> data1
+        -> data2
+        -> ...
+    -> ...
+</p>
+        <p>
+            ...and so on.
+        </p>
+        <p>
+            Collections of images (one for training, one for validation) arranged like this can then be converted to a Tensorflow dataset using something like this:
+        </p>
+<p class="codebox">train_ds = tf.keras.utils.image_dataset_from_directory(
+    DATA_PATH,
+    labels='inferred',
+    validation_split=0.2,
+    subset="training",
+    color_mode='grayscale',
+    seed=123,
+    image_size=(img_height, img_width),
+    batch_size=batch_size,
+    shuffle=True
+)
+val_ds = tf.keras.utils.image_dataset_from_directory(
+    DATA_PATH,
+    labels='inferred',
+    validation_split=0.2,
+    subset="validation",
+    color_mode='grayscale',
+    seed=123,
+    image_size=(img_height, img_width),
+    batch_size=batch_size,
+    shuffle=True
+)</p>
+        <p>
+            But hold up, where am I going to get the training data? After searching on Google for some handwritten kanji datasets, I concluded
+            that either I didn't search enough, or that I wasn't going to find what I needed. <a href="https://paperswithcode.com/dataset/kuzushiji-kanji" 
+            target="_blank">This</a> one that I found is alright, but it since the model will be mainly reading handwritten copies of printed kanjis,
+            which are quite different from these truly handwritten ones, I thought that I could make my own dataset.
+        </p>
+        <p>
+            I don't have the time to manually draw out the thousands of images that I need, so I thought that I could just generate them using 
+            some code.
+        </p>
+        <h1>(this is unfinished)</h1>
+    </div>
+    <script src="/page_template.js"></script>
+</body>

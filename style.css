@@ -91,10 +91,20 @@ a:active {
 /* the content, (this is inside margin-intern) */
 .content-main {
 	/* don't put the content right at the edge of the section */
-	padding: 10px;
+	padding: 3%;
 	/* set the font */
 	font-family: helvetica;
 	height: 100%;
+	word-wrap: normal;
+	overflow-wrap: anywhere;
+	width: 60%;
+	line-height: 1.5;
+}
+
+@media (max-width: 1000px) {
+	.content-main{
+		width: 90%;
+	}
 }
 
 /* the section that margin-intern resides in, this is the light gray part on the edges of the pages */
@@ -187,6 +197,19 @@ a:active {
 .navbar-bottom a:hover {
 	/* make shadow visible */
 	background-color: #2c2c2c;
+}
+
+.codebox {
+	background-color: #5f5f7a;
+	font-family: 'Cascadia Code';
+	color: rgb(190, 229, 255);
+	padding: 10px;
+	width: 100%;
+	border-radius: 10px;
+	outline: 1px solid rgb(43, 43, 46);
+	outline-offset: -1px;
+	white-space: pre-wrap;
+	line-height: 1.5;
 }
 
 /* set parameters for image type */
