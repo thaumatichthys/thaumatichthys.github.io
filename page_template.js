@@ -8,8 +8,8 @@ const string_template = `<!DOCTYPE html>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
 	<title>thaumatichthys</title>
-	<link rel="icon" type="image/x-icon" href="res/wavelet.png">
-	<link href="style.css" rel="stylesheet" type="text/css" />
+	<link rel="icon" type="image/x-icon" href="/res/wavelet.png">
+	<link href="/style.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
 	<script src="script.js"></script>
@@ -19,28 +19,27 @@ const string_template = `<!DOCTYPE html>
 			<h1 class="header-text">
 				Thaumatichthys Projects
 			</h1>
-			<table class="navbar-top"> <!-- I think the table looks better than an unordered list -->
-				<tr>
-					<td>
-						<h3><a href="./index.html">About</a></h3>
-					</td>
-					<td>
-						<h3><a href="./electronics.html">Electronics</a></h3>
-					</td>
-                    <td>
-						<h3><a href="./programming.html">Programming</a></h3>
-					</td>
-					<td>
-						<h3><a href="./misc.html">Misc</a></h3>
-					</td>
-                    <td>
-						<h3><a href="./contact.html">Contact</a></h3>
-					</td>
-					<td>
-						<h3><a href="./disclaimer.html">Disclaimer</a></h3>
-					</td>
-				</tr>
-			</table>
+			<br>
+			<div class="navbar-top"> <!-- I think the table looks better than an unordered list -->
+				<div class="navbar-top-cell">
+					<h3><a href="./index.html">About</a></h3>
+				</div>
+				<div class="navbar-top-cell">
+					<h3><a href="./electronics.html">Electronics</a></h3>
+				</div>
+				<div class="navbar-top-cell">
+					<h3><a href="./programming.html">Programming</a></h3>
+				</div>
+				<div class="navbar-top-cell">
+					<h3><a href="./misc.html">Misc</a></h3>
+				</div>
+				<div class="navbar-top-cell">
+					<h3><a href="./contact.html">Contact</a></h3>
+				</div>
+				<div class="navbar-top-cell">
+					<h3><a href="./disclaimer.html">Disclaimer</a></h3>
+				</div>
+			</div>
 		</div>
 
 		<div class="margin-extern">
@@ -66,7 +65,7 @@ const string_template = `<!DOCTYPE html>
 </html>`;
 
 const parser = new DOMParser();
-var page_template = parser.parseFromString(string_template, 'text/html');
+const page_template = parser.parseFromString(string_template, 'text/html');
 
 page_template.getElementById("page-title").innerHTML = input_title;
 page_template.getElementById("page-text").innerHTML = input_content;

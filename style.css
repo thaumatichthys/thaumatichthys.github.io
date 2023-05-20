@@ -5,19 +5,20 @@
 /* sets the parameters of the header. This includes the entire gray portion at the top. */
 .header {
 	/* set the font */
-	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+	font-family: 'Leelawadee UI';
 	/* sets the font colour */
 	color: white;
 	/* sets the header to dimgray */
-	background-color: dimgray;
+	background-color: rgb(79, 76, 95);
 	/* moves the content to the right by 10% of the page width */
 	padding-left: 10%;
+	display: flex;
+	flex-wrap: wrap;
 }
 
 /* sets the parameters of the text in the header */
 .header-text {
-	/* puts the links on the same Y level as the main title */
-	display: inline-block;
+	font-family: inherit;
 }
 
 /* sets the parameters of the navbar in the header */
@@ -25,13 +26,18 @@
 	/* font type */
 	font-family: helvetica;
 	/* allows the buttons to be on the same Y level as the other text */
-	display: inline-block;
+	display: flex;
+	flex-wrap: wrap;
 	/* the buttons are too high, so move them to the bottom of their level */
 	vertical-align: bottom;
 	/* move the buttons a bit farther right */
 	padding-left: 10%;
-	/* move the buttons farther apart */
-	border-spacing: 20px 0px;
+	align-items: flex-end;
+}
+
+.navbar-top-cell {
+	padding-left: 20px;
+	box-sizing: border-box;
 }
 
 /* sets the common parameters for links in the top navbar, aka the buttons */
@@ -60,7 +66,7 @@ a:active {
 /* sets the parameters for the buttons when they are hovered over */
 .navbar-top a:hover {
 	/* make the shadow visible */
-	background-color: #404040;
+	background-color: #2c2c2c;
 }
 
 .page {
@@ -141,7 +147,7 @@ a:active {
 	/* text colour set to white */
 	color: white;
 	/* set background colour to dim gray */
-	background-color: dimgray;
+	background-color: rgb(79, 76, 95);;
 }
 
 /* set parameters for the unordered list navbar */
@@ -180,7 +186,7 @@ a:active {
 /* for when link is hovered over */
 .navbar-bottom a:hover {
 	/* make shadow visible */
-	background-color: #404040;
+	background-color: #2c2c2c;
 }
 
 /* set parameters for image type */
