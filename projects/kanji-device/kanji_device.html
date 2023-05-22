@@ -168,7 +168,95 @@ model.save("model.keras")
         <h3>The problem</h3>
         <p>
             For me when I tried this, I noticed that sometimes it literally just won't "learn" anything from training.
-            The loss metrics usually won't go down, and the whole thing just does not work. I eventually tried 
+            The loss metrics usually won't go down, and the whole thing just does not work. I eventually tried generating a new dataset 
+            using only 25 different kanjis, and using this, it trained perfectly fine. After much head scratching, I eventually landed on 
+            a solution. It turns out that if I train the model on just 25 different classes, then save it, and in a different script, 
+            open the saved model, replace the Dense layer (since it has [n kanjis] number of nodes), and train it again with all 2500 classes, 
+            it seems to work just fine.
+        </p>
+        <p>
+            Modifying the saved model: (num_classes is now 2500)
+        </p>
+<p class="codebox">pretrained_model = keras.models.load_model("model.keras")
+last_layer_removed_model = keras.Model(inputs=pretrained_model.input, outputs=pretrained_model.layers[-2].output)
+output = layers.Dense(num_classes)(last_layer_removed_model.output)
+model = keras.Model(inputs=pretrained_model.input, outputs=output)
+</p>
+        <p>
+            The dataset can be generated and loaded the same way as before, (except with all 2500 kanjis), and the model can now be compiled, trained 
+            and saved, as before.
+        </p>
+        <h3>Converting to TFLite</h3>
+        <p>
+            The model we have saved is a full Tensorflow/Keras model, which are normally used on desktop machines with reasonably good hardware. 
+            However, since we are trying to run this on a cheap microcontroller, we must convert it to a TFLite model. In addition, all the 
+            weights in the model are in the form of 32 bit floating point numbers, which are good, but they take up four bytes of memory each,
+            and are horrendously slow to compute, especially on low cost chips. For this reason, the whole model is converted to one with 
+            8 bit integer weights.
+        </p>
+        <p>
+            This can be done with something like this, using the 25 image dataset from before as a sample:
+        </p>
+<p class="codebox">import tensorflow as tf
+import keras
+
+DATA_PATH = "25-image-dataset"
+
+batch_size = 64
+img_height = 64
+img_width = 64
+
+train_ds = tf.keras.utils.image_dataset_from_directory(
+    DATA_PATH,
+    color_mode='grayscale',
+    seed=123,
+    image_size=(img_height, img_width),
+    batch_size=batch_size,
+    shuffle=True
+)
+train_ds = train_ds.prefetch(buffer_size=tf.data.AUTOTUNE)
+
+def representative_data_gen():
+    for input_value, labels in train_ds.take(50):
+        yield [input_value]
+
+model = keras.models.load_model("model.keras")
+converter = tf.lite.TFLiteConverter.from_keras_model(model)
+converter.optimizations = [tf.lite.Optimize.DEFAULT]
+converter.representative_dataset = representative_data_gen
+converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
+converter.inference_input_type = tf.int8  # or tf.uint8
+converter.inference_output_type = tf.int8  # or tf.uint8
+tflite_model = converter.convert()
+
+with open('output.tflite', 'wb') as f:
+    f.write(tflite_model)
+</p>
+        <h3>Using the model</h3>
+        <p>
+            Just to get a feel for how good or bad the model actually is, I wrote a short script to test out the model. 
+            It can be downloaded <a href="model-test.py" download target="_blank">here</a>.
+        </p>
+        <h3>The hardware</h3>
+        <p>
+            As for using the model, I mostly followed <a href="https://youtu.be/gDFWCxrJruQ" download target="_blank">this tutorial</a>, 
+            as well as looking around on the GitHub page of Zack Freedman's Somatic project. Using these, I was able to get my model to run on a few 
+            different microcontrollers. 
+        </p>
+        <p>
+            My original configuration for the model used 128x128 inputs instead of 64x64, and its Conv2D 
+            layers were quite a bit larger. Thus, it required several megabytes of RAM, which did not fit on any microcontrollers natively. Instead,
+            I tried using an ESP32-WROVER module with 4MB of accessable PSRAM. While this did work, the ESP32's PSRAM is quite slow compared to actual 
+            SRAM, and the model ended up taking <b>over two minutes</b> to run. This was not acceptable, so I ended up reducing the size of the inputs 
+            to the current size of 64x64, and I also reduced the size of the Conv2D layers to their current size.
+        </p>
+        <p>
+            This new model was able to fit in just under 170kB of RAM, which meant that it could be run on the RPi Pico, which I am more familiar with.
+            It turned out that on the RP2040, this new model could run inference in under three seconds. Quite the improvement from the two minutes that 
+            it took before. With a <i>casual 288% overclock</i>, the model now ran in under 800ms, suitable for use in an actual device.
+        </p>
+        <p>
+            With a bunch of C++ code and a 2.4" TFT LCD display, a basic device can be made. 
         </p>
         <h1>(this is unfinished)</h1>
     </div>
