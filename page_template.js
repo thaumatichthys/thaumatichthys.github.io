@@ -17,12 +17,9 @@ const string_template = `<!DOCTYPE html>
 	<div class="page">
 		<div class="header">
 			<h1 class="header-text">
-				Thaumatichthys Projects
+				<a href="/index.html">Thaumatichthys Projects</a>
 			</h1>
 			<div class="navbar-top"> <!-- I think the table looks better than an unordered list -->
-				<div class="navbar-top-cell">
-					<h3><a href="/index.html">About</a></h3>
-				</div>
 				<div class="navbar-top-cell">
 					<h3><a href="/electronics.html">Electronics</a></h3>
 				</div>

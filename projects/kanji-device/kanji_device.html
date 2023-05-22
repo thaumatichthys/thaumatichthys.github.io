@@ -29,17 +29,45 @@
             smaller devices such as Raspberry Pi's, and it even has a separate branch made specifically for microcontrollers. Because
             it is more well known, (and honestly not much else), I chose to use Tensorflow for this project.
         </p>
+        
+        <p>
+            But hold up, where am I going to get training data? After searching on Google for some handwritten kanji datasets, I concluded
+            that either I didn't search enough, or that I wasn't going to find what I needed. <a href="https://paperswithcode.com/dataset/kuzushiji-kanji" 
+            target="_blank">This</a> one that I found is alright, but it since the model will be mainly reading handwritten copies of printed kanjis,
+            which are quite different from these truly handwritten ones, I thought that I could make my own dataset.
+        </p>
+        <p>
+            I don't have the time to manually draw out the thousands of images that I need, so I thought that I could just generate them using 
+            some code. The approach I ended up using was basically to use a bunch of different typefaces and generate a series of distorted images of each
+            kanji.
+        </p>
+        <h3>Generating a dataset</h3>
+        <p>
+            Firstly, I had to get a list of kanjis to use for the dataset. I ended up literally just copy and pasting 
+            <a href="https://kanjicards.org/kanji-list-by-freq.html" target="_blank">this</a> page, and then I just used notepad++ to get rid of the unnecessary stuff.
+            <a href="2500-list.txt" download target="_blank">This</a> is the resulting text file.
+        </p>
+        <p>
+            Long story short, <a href="dataset-generator.py" download target="_blank">this</a> program takes each character from the list, and uses a random
+            font to generate an image. It then applies a randomized (within some limits) matrix transform, converts to grayscale, applies a binary
+            threshold, and saves it. It then repeats this a number of times for each image.
+        </p>
+        <p>
+            For mine, I ended up using eight different fonts, 2500 kanjis and 300 images each, so 750,000 images total. It would be quite hard to find a dataset this 
+            large. (Although I am probably overfitting my model here, and typefaces are not really super accurate of handwriting, so its not actually that impressive).
+        </p>
+        <h3>Tensorflow model</h3>
+        <p>
+            (Since Tensorflow changes so often, (and because I don't really know what I am doing), don't expect to be able to copy and paste 
+            and code from here and have it work without modification. Also, these code blocks may be incomplete.)
+        </p>
         <p>
             Using the <a href="https://www.tensorflow.org/tutorials/images/classification" target="_blank">Tensorflow image classification tutorial</a>,
             I was able to reasonably easily build a model that could identify between the images used in the tutorial. (I suppose that
             is to be expected of a tutorial).
         </p>
         <p>
-            (Since Tensorflow changes so often, (and because I don't really know what I am doing), don't expect to be able to copy and paste 
-            and code from here and have it work without modification.)
-        </p>
-        <p>
-            Training data can be in the form of something like this:
+            Training data can be in the form of something like this: (The dataset generator script formats its output like this natively)
         </p>
 <p class="codebox">-> root
     -> class1
@@ -54,6 +82,9 @@
 </p>
         <p>
             ...and so on.
+        </p>
+        <p>
+            The names of the folders serve as the "labels" here.
         </p>
         <p>
             Collections of images (one for training, one for validation) arranged like this can then be converted to a Tensorflow dataset using something like this:
@@ -80,15 +111,64 @@ val_ds = tf.keras.utils.image_dataset_from_directory(
     batch_size=batch_size,
     shuffle=True
 )</p>
+        
         <p>
-            But hold up, where am I going to get the training data? After searching on Google for some handwritten kanji datasets, I concluded
-            that either I didn't search enough, or that I wasn't going to find what I needed. <a href="https://paperswithcode.com/dataset/kuzushiji-kanji" 
-            target="_blank">This</a> one that I found is alright, but it since the model will be mainly reading handwritten copies of printed kanjis,
-            which are quite different from these truly handwritten ones, I thought that I could make my own dataset.
+            Prefetch data (from the Tensorflow example)
         </p>
+<p class="codebox">train_ds = train_ds.prefetch(buffer_size=tf.data.AUTOTUNE)
+val_ds = val_ds.prefetch(buffer_size=tf.data.AUTOTUNE)
+</p>
         <p>
-            I don't have the time to manually draw out the thousands of images that I need, so I thought that I could just generate them using 
-            some code.
+            As for the model, I have messed around with the configuration of the model quite a bit. Long story short, (again, I do not really know what I am doing!)
+            It seems that it is better to have a mode with more Conv2D layers rather than bigger layers. After some experimentation, I ended up with something like this:
+        </p>
+<p class="codebox">model = Sequential([
+    layers.Rescaling(scale=1.0 / 255, offset=0),
+
+    layers.Conv2D(32, kernel_size=3, activation='relu', padding='same'),
+    layers.MaxPooling2D(),
+    layers.Dropout(0.1),
+
+    layers.Conv2D(32, kernel_size=3, activation='relu', padding='same'),
+    layers.MaxPooling2D(),
+    layers.Dropout(0.1),
+
+    layers.Conv2D(32, kernel_size=3, activation='relu', padding='same'),
+    layers.MaxPooling2D(),
+    layers.Dropout(0.1),
+
+    layers.Conv2D(32, kernel_size=3, activation='relu', padding='same'),
+    layers.MaxPooling2D(padding='same'),
+    layers.Dropout(0.1),
+
+    layers.Conv2D(128, kernel_size=3, activation='relu', padding='same'),
+    layers.MaxPooling2D(padding='same'),
+    layers.Dropout(0.1),
+
+    layers.Flatten(),
+    layers.Dense(num_classes)
+])
+</p>
+        <p>
+            The model can then be compiled, trained, and saved.
+        </p>
+<p class="codebox">model.compile(optimizer='adam',
+    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+    metrics=['accuracy'])
+
+epochs = 5
+
+history = model.fit(
+train_ds,
+validation_data=val_ds,
+epochs=epochs)
+
+model.save("model.keras")
+</p>
+        <h3>The problem</h3>
+        <p>
+            For me when I tried this, I noticed that sometimes it literally just won't "learn" anything from training.
+            The loss metrics usually won't go down, and the whole thing just does not work. I eventually tried 
         </p>
         <h1>(this is unfinished)</h1>
     </div>

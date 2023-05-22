@@ -40,6 +40,10 @@
 	box-sizing: border-box;
 }
 
+.header-text a {
+	text-decoration: none;
+}
+
 /* sets the common parameters for links in the top navbar, aka the buttons */
 /* henceforth, the colour changing area around the buttons is referred to as the shadow */
 .navbar-top a {
