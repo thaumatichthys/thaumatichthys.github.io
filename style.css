@@ -42,6 +42,7 @@
 
 .header-text a {
 	text-decoration: none;
+	color: white;
 }
 
 /* sets the common parameters for links in the top navbar, aka the buttons */
