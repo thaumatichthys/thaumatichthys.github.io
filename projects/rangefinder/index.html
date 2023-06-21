@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <div hidden id="page-title">
+        Rangefinder app (Chrome only)
+    </div>
+    <div hidden id="page-content">
+        <div class="grid-container">
+            <embed type="text/html" src="rangefinder-tts.html" width="100%" height="1000px">
+            <div>
+                <h2>Context</h2>
+                <p>
+                    Theres this game that has these tank battle. In these matches, in some modes, you will need to
+                    figure out the distance between you and whatever you are shooting at. Normally you would do this
+                    just by staring at it,
+                    but this can be tedious if you are not experienced.
+                </p>
+                <p>
+                    A feature to note about these tank battles, is that the game has a minimap on the bottom right of
+                    the screen, which displays
+                    the entire game map. In addition to this, you can set a key bind, that when activated, places a
+                    temporary marker
+                    on the minimap at the location you are pointing to.This is typically used for telling your teamates
+                    where an enemy is, but
+                    it coincidentally has a special colour which is not used anywhere else on the minimap. This,
+                    combined with the other marker
+                    on the map which indicates where your vehicle is, makes it possible to use some computer vision to
+                    calculate the exact distance
+                    between you and the enemy.
+                </p>
+                <p>
+                    This program aims to streamline that process to the extent where it no longer requires additional
+                    mouse movements or keyboard
+                    actions beyond a single key press. Then, just simply look over to the application window, and the
+                    precise distance will automatically
+                    be presented.
+                </p>
+                <h3>Usage</h3>
+                <p>
+                    Using auto mode:
+                    Click the switch that says auto mode, and select the game window. Adjust the three sliders until the
+                    view port is <b>exactly</b>
+                    laid over game minimap. Change the number of grid squares and distance per grid square parameters
+                    to match that of the minimap.
+                    When you see an enemy, press the key bind to mark targets for squad, and the distance should be
+                    presented on the calculator.
+                </p>
+                <p>
+                    If you do not want to use the automatic screen reading mode or you do not have a compatible browser,
+                    you can also just click twice on
+                    the map, once for where you are, and again for where the enemy is, and it will then calculate the
+                    range in the same way. In addition,
+                    if you do not have two monitors to see the results, turn on the text to speech, and it will read it
+                    out to you.
+                </p>
+            </div>
+        </div>
+    </div>
+    <script src="/page_template.js"></script>
+</body>

@@ -9,7 +9,7 @@
 	/* sets the font colour */
 	color: white;
 	/* sets the header to dimgray */
-	background-color: rgb(79, 76, 95);
+	background-color: rgb(62, 64, 97);
 	/* moves the content to the right by 10% of the page width */
 	padding-left: 10%;
 	display: flex;
@@ -102,8 +102,15 @@ a:active {
 	height: 100%;
 	word-wrap: normal;
 	overflow-wrap: anywhere;
-	width: 60%;
+	width: 80%;
 	line-height: 1.5;
+}
+
+.grid-container {
+	display: grid;
+	grid-template-columns: 1fr 1fr; /* Two equal-width columns */
+  	grid-gap: 20px; /* Gap between elements */
+	width: 100%;
 }
 
 @media (max-width: 1000px) {
@@ -162,7 +169,7 @@ a:active {
 	/* text colour set to white */
 	color: white;
 	/* set background colour to dim gray */
-	background-color: rgb(79, 76, 95);;
+	background-color: rgb(62, 64, 97);
 }
 
 /* set parameters for the unordered list navbar */

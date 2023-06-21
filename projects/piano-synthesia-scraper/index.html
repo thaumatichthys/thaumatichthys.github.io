@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <div hidden id="page-title">
+        Python program to scrape MIDI files from piano synthesia videos
+    </div>
+    <div hidden id="page-content">
+        <p>
+            This is very low effort. Aka sort of unfinished
+        </p>
+        <p>
+            The way this works is honestly pretty dumb, but anyways, it basically uses the fact that in 
+            <a href="https://youtu.be/G3qL907KC80" target="_blank">these</a> videos, whenever a key 
+            is pressed, it lights up a different colour.
+        </p>
+        <p>
+            It also currently only works with the videos where the entire 88 keys of the piano are stretched 
+            across the entire bottom of the screen, and it isn't totally accurate. The SPEED_PRESCALER field 
+            can be changed so that you can use 0.5x or 0.25x speed on youtube to get it to be marginally more
+            accurate.
+        </p>
+        <p class="codebox">from PIL import Image, ImageGrab
+import time
+import numpy as np
+from midiutil.MidiFile import MIDIFile
+
+# it takes takes a piano synthesia video like this https://youtu.be/jWa6ncsVAfs, and after you fullscreen it and run it,
+# it attempts to generate a midi file literally by looking at the colours of the keys at the bottom
+
+SPEED_PRESCALER = 1
+
+SCREEN_Y_VALUE = 950
+PREV_BOX_WIDTH = 1920
+PREV_BOX_HEIGHT = 200
+PREV_BOX_COLOUR = (128, 128, 128)
+DURATION = 230 + 10
+N_PIANO_KEYS = 88
+
+mf = MIDIFile(1)
+track = 0
+midi_time = 0
+channel = 0
+mf.addTrackName(track, midi_time, "kekkekkee track 0")
+mf.addTempo(track, midi_time, 60)  # 60 bpm so 1 beat = 1 second
+
+destination_path = "X:/0synthesia-scraping/output1.mid"
+
+DURATION *= SPEED_PRESCALER
+
+preview_box = (0, SCREEN_Y_VALUE - int(PREV_BOX_HEIGHT / 2), 1920, SCREEN_Y_VALUE + int(PREV_BOX_HEIGHT / 2))
+preview_img = ImageGrab.grab(bbox=preview_box)
+preview_img = preview_img.convert("RGB")
+
+def locate_key(key):
+    reference = key % 12
+    white_key_width = PREV_BOX_WIDTH / 52
+    location = 0
+    white_key = False
+    if reference == 0:
+        location = 1/2
+        white_key = True
+    elif reference == 1:
+        location = 1
+    elif reference == 2:
+        location = 5/3
+        white_key = True
+    elif reference == 3:
+        location = 7/3
+        white_key = True
+    elif reference == 4:
+        location = 3
+    elif reference == 5:
+        location = 7/2
+        white_key = True
+    elif reference == 6:
+        location = 4
+    elif reference == 7:
+        location = 14 / 3
+        white_key = True
+    elif reference == 8:
+        location = 16/3
+        white_key = True
+    elif reference == 9:
+        location = 6
+    elif reference == 10:
+        location = 13/2
+        white_key = True
+    elif reference == 11:
+        location = 7
+    return int(round(white_key_width * (location + ((key - reference) / 12) * 7))), white_key
+
+
+key_locations = []
+colour_calibration = np.zeros(12, dtype=np.float64)
+
+
+def is_down(colour, _is_white):
+    r, g, b = colour
+    if _is_white:
+        result = r < colour_calibration[0] and r > colour_calibration[1] and g < colour_calibration[4] and\
+                    g > colour_calibration[5] and b < colour_calibration[8] and b > colour_calibration[9]
+        # return False
+        return not result
+    else:
+        result = r < colour_calibration[2] and r > colour_calibration[3] and g < colour_calibration[6] and\
+                    g > colour_calibration[7] and b < colour_calibration[10] and b > colour_calibration[11]
+        # return False
+        return not result
+
+
+def calibrate_colours(image):
+    tolerance = 25
+    b_r = 0
+    b_g = 0
+    b_b = 0
+    w_r = 0
+    w_g = 0
+    w_b = 0
+    n_black_keys = 0
+    n_white_keys = 0
+    for i in range(N_PIANO_KEYS):
+        location, is_white = locate_key(i)
+        _r, _g, _b = image.getpixel((location, 0))
+        if is_white:
+            w_r += _r
+            w_g += _g
+            w_b += _b
+            n_white_keys += 1
+        else:
+            b_r += _r
+            b_g += _g
+            b_b += _b
+            n_black_keys += 1
+    if n_black_keys > 0:
+        b_r /= n_black_keys
+        b_g /= n_black_keys
+        b_b /= n_black_keys
+    if n_white_keys > 0:
+        w_r /= n_white_keys
+        w_g /= n_white_keys
+        w_b /= n_white_keys
+    colour_calibration[0] = w_r + tolerance
+    colour_calibration[1] = w_r - tolerance
+    colour_calibration[2] = b_r + tolerance  #
+    colour_calibration[3] = b_r - tolerance  #
+    colour_calibration[4] = w_g + tolerance
+    colour_calibration[5] = w_g - tolerance
+    colour_calibration[6] = b_g + tolerance  #
+    colour_calibration[7] = b_g - tolerance  #
+    colour_calibration[8] = w_b + tolerance
+    colour_calibration[9] = w_b - tolerance
+    colour_calibration[10] = b_b + tolerance  #
+    colour_calibration[11] = b_b - tolerance  #
+
+
+for y in range(N_PIANO_KEYS):
+    i, white_key = locate_key(y)
+    for u in range(int(PREV_BOX_HEIGHT / 3)):
+        y_val = int((u - PREV_BOX_HEIGHT / 6) + PREV_BOX_HEIGHT / 2)
+        if PREV_BOX_WIDTH - 1 > i > 1:
+            preview_img.putpixel((i - 1, y_val), PREV_BOX_COLOUR)
+            preview_img.putpixel((i + 1, y_val), PREV_BOX_COLOUR)
+        preview_img.putpixel((i, y_val), PREV_BOX_COLOUR)
+    key_locations.append(i)
+
+for i in range(1920):
+    preview_img.putpixel((i, int(PREV_BOX_HEIGHT / 2) - 1), PREV_BOX_COLOUR)
+    preview_img.putpixel((i, int(PREV_BOX_HEIGHT / 2)), PREV_BOX_COLOUR)
+    preview_img.putpixel((i, int(PREV_BOX_HEIGHT / 2) + 1), PREV_BOX_COLOUR)
+
+
+start_time = time.time()
+key_states = np.zeros(N_PIANO_KEYS, dtype=bool)
+note_start_times = np.zeros(N_PIANO_KEYS, dtype=np.float64)
+
+preview_img.show()
+samples = 0
+previous_samples_done_time = 0
+
+calib_img = ImageGrab.grab(bbox=(0, SCREEN_Y_VALUE, PREV_BOX_WIDTH, SCREEN_Y_VALUE + 1))
+calib_img = calib_img.convert("RGB")
+calibrate_colours(calib_img)
+print(colour_calibration)
+
+time.sleep(2)
+print("START")
+
+while time.time() < start_time + DURATION:
+    im2 = ImageGrab.grab(bbox=(0, SCREEN_Y_VALUE, PREV_BOX_WIDTH, SCREEN_Y_VALUE + 1))
+    im2 = im2.convert("RGB")
+    for i in range(N_PIANO_KEYS):
+
+        location, is_white = locate_key(i)
+        value = is_down(im2.getpixel((location, 0)), is_white)
+
+        if key_states[i] != value:
+            # print(value)
+            key_states[i] = value
+            if value:
+                print("key " + str(i) + " pressed")
+                note_start_times[i] = time.time()
+            else:
+                print("key " + str(i) + " released")
+                note_time = note_start_times[i] - start_time
+                note_duration = time.time() - note_start_times[i]
+                mf.addNote(track, channel, i + 21, note_time / SPEED_PRESCALER, note_duration / SPEED_PRESCALER, 100)
+    if samples > 10:
+        delta_time = time.time() - previous_samples_done_time
+        sample_rate = samples / delta_time
+        samples = 0
+        # print("\rsample rate: " + str(sample_rate), end="")
+
+        previous_samples_done_time = time.time()
+
+    samples += 1
+
+with open(destination_path, 'wb') as f:
+    mf.writeFile(f)</p>
+    </div>
+    <script src="/page_template.js"></script>
+</body>

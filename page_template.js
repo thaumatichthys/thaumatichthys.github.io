@@ -21,19 +21,19 @@ const string_template = `<!DOCTYPE html>
 			</h1>
 			<div class="navbar-top"> <!-- I think the table looks better than an unordered list -->
 				<div class="navbar-top-cell">
-					<h3><a href="/electronics.html">Electronics</a></h3>
+					<h3><a href="/mainpage/electronics/">Electronics</a></h3>
 				</div>
 				<div class="navbar-top-cell">
-					<h3><a href="/programming.html">Programming</a></h3>
+					<h3><a href="/mainpage/programming/">Programming</a></h3>
 				</div>
 				<div class="navbar-top-cell">
-					<h3><a href="/misc.html">Misc</a></h3>
+					<h3><a href="/mainpage/misc/">Misc</a></h3>
 				</div>
 				<div class="navbar-top-cell">
-					<h3><a href="/contact.html">Contact</a></h3>
+					<h3><a href="/mainpage/contact/">Contact</a></h3>
 				</div>
 				<div class="navbar-top-cell">
-					<h3><a href="/disclaimer.html">Disclaimer</a></h3>
+					<h3><a href="/mainpage/disclaimer/">Disclaimer</a></h3>
 				</div>
 			</div>
 		</div>
@@ -54,7 +54,7 @@ const string_template = `<!DOCTYPE html>
 		<div class="footer">
 			<!-- <h3>footer</h3> -->
 			<p>Thaumatichthys Pagidostomus</p>
-			<h4 class="navbar-bottom"><a href="/disclaimer.html">Disclaimer</a></h4>
+			<h4 class="navbar-bottom"><a href="/mainpage/disclaimer/">Disclaimer</a></h4>
 		</div>
 	</div>
 </body>
