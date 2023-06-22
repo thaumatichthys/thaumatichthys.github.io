@@ -17,7 +17,7 @@ const BALL_VELOCITY = 10;
 const MAX_ANGLE = 70 / (180 / Math.PI);
 const PIXELS_PER_MOVEMENT = 15;
 
-const _5pxbluedot = "blue-dot.png";
+const _5pxbluedot = "res/blue-dot.png";
 const _5pxblacksquare = "res/5px_square.png";
 const _10pxwhitesquare = "res/10px-ball.png";
 const _10x60whiterectangle = "res/10x60-rectangle.png";

@@ -1,6 +1,6 @@
 var BOARD_HEIGHT = 400;
 var BOARD_WIDTH_TOTAL = 700;
-var SHOW_MARKERS = false;
+var SHOW_MARKERS = true;
 var UP_pressed = false;
 var DOWN_pressed = false;
 var LEFT_pressed = false;
@@ -235,11 +235,11 @@ function BotPlayerZeroo() {
     if (ball_x_velocity < 0) {
         if (SHOW_MARKERS) {
             if (counter > 20) {
-                for (var i = 0; i < BOARD_WIDTH_TOTAL + 100; i += 5) {
+                for (var i = 0; i < BOARD_WIDTH_TOTAL + 100; i += 30) {
                     let y = TriangleWave(b, m, t, i);
                     while (i > (graph.length - 1)) {
-                        graph.push(new JSImage(_5pxwhitedot, 10, 10));
-                        graph2.push(new JSImage(_5pxbluedot, 10, 10));
+                        graph.push(new JSImage(_5pxwhitedot, -10, 10));
+                        graph2.push(new JSImage(_5pxbluedot, -10, 10));
                     }
                     graph[i].Move(i, y);
                     graph2[i].Move(i + GREEN_BAR_WIDTH, (deflection_slope * i) + ball_landing_y);
