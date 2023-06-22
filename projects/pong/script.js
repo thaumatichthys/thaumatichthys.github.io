@@ -1,6 +1,6 @@
 var BOARD_HEIGHT = 400;
 var BOARD_WIDTH_TOTAL = 700;
-var SHOW_MARKERS = true;
+var SHOW_MARKERS = false;
 var UP_pressed = false;
 var DOWN_pressed = false;
 var LEFT_pressed = false;
