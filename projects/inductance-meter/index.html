@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <div hidden id="page-title">
+        Frequency sweep inductance meter
+    </div>
+    <div hidden id="page-content">
+        <p>
+            As you might know, inductors are quite useful. In short, an inductor ensures that the derivative of the current running through it
+            is proportional to the voltage across it, with the formula V = LdI/dt. In practice, they are often used for filtering
+            purposes, being part of transformers, and resonant applications.
+        </p>
+        <p>
+            A typical multimeter will be able to measure voltage, current, resistance, and some other, and some meters can also measure capacitance.
+            While many multimeters are able to measure inductance, these can be more expensive.
+        </p>
+        <p>
+            Either way, these meters typically work by running an alternating current through the inductor, measuring the impedance, and then comparing
+            that to the DC resistance. The inductance can then be calculated by the formula X = 2*pi*f*L.
+        </p>
+        <p>
+            While this is straightforward for a multimeter to do, this method is sort of finicky to do using something like a microcontroller. Firstly, 
+            an accurate and clean AC sine wave must be generated, and then it must be accurately measured to obtain an accurate reading. While this is 
+            definitely doable, in my opinion it is not the easiest method.
+        </p>
+        <p>
+            An inductor combined with a capacitor forms an LC tank circuit that will oscillate when excited by its resonant frequency, equal to
+            f = 1/(2*pi*sqrt(L*C)). Thus, if the capacitance and resonant frequency is known, the inductance can be calculated.
+        </p>
+    </div>
+    <script src="/page_template.js"></script>
+</body>

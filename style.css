@@ -228,8 +228,8 @@ a:active {
 img {
 	/* allow image to be moved/centered */
 	display: block;
-	/* set width to 50% of margin-intern width */
-	max-width: 50%;
+	/* set width to 70% of margin-intern width */
+	max-width: 70%;
 	/* keep aspect ratio of the image */
 	max-height: auto;
 	/* center the image */

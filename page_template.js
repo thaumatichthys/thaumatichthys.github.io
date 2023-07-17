@@ -7,7 +7,7 @@ const string_template = `<!DOCTYPE html>
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-	<title>thaumatichthys</title>
+	<title>Thaumatichthys</title>
 	<link rel="icon" type="image/x-icon" href="/res/wavelet.png">
 	<link href="/style.css" rel="stylesheet" type="text/css" />
 </head>
