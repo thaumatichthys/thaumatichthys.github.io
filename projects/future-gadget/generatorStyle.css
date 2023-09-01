@@ -1,0 +1,14 @@
+* {
+    font-family: sans-serif;
+    background-color: whites;
+}
+
+.inputs {
+    text-align: right;
+    width: 40%;   
+}
+
+@font-face {
+    font-family: 'custom-font';
+    src: url('font.otf'); /*URL to font*/
+}

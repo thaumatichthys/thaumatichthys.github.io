@@ -12,8 +12,6 @@ const string_template = `<!DOCTYPE html>
 	<link href="/style.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
-	<script src="script.js"></script>
-
 	<div class="page">
 		<div class="header">
 			<h1 class="header-text">
@@ -60,14 +58,18 @@ const string_template = `<!DOCTYPE html>
 </body>
 </html>`;
 
-const parser = new DOMParser();
-const page_template = parser.parseFromString(string_template, 'text/html');
+function updatePage() {
+	const parser = new DOMParser();
+	const page_template = parser.parseFromString(string_template, 'text/html');
 
-page_template.getElementById("page-title").innerHTML = input_title;
-page_template.getElementById("page-text").innerHTML = input_content;
+	page_template.getElementById("page-title").innerHTML = input_title;
+	page_template.getElementById("page-text").innerHTML = input_content;
 
-document.open();
-document.write(page_template.documentElement.innerHTML);
-document.close();
+	document.open();
+	document.write(page_template.documentElement.innerHTML);
+	document.close();
 
-console.log("Page loaded through JS")
+	console.log("Page loaded through JS")
+}
+
+updatePage();
