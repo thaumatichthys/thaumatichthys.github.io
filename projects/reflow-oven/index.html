@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <div hidden id="page-title">
+        DIY reflow oven
+    </div>
+    <div hidden id="page-content">
+        <p>
+            July 16, 2023
+        </p>
+        <p>
+            While more primitive devices may use through hole parts soldered to a printed circuit board via a pool of molten solder,
+            modern ones are typically made by printing a layer of solder paste (a mixture of powdered solder suspended in flux) onto
+            the PCB, placing the parts on top, and then baking the entire thing in a reflow oven.
+        </p>
+        <p>
+            For hobbyists, there are a few different ways of assembling SMD boards, including using a hot plate in place of the oven,
+            using a hot air gun, or even hand soldering if doing so is possible. The reflow oven is typically one of the better approaches
+            though.
+        </p>
+        <p>
+            For low volume production of such boards, a simple toaster oven can be used. These typically are not hot enough to reflow 
+            Sn96.5/Ag3/Cu0.5 (or similar) lead free solder, but are sufficient for Bi57.6/Sn42/Ag0.4 and Sn63/Pb37 leaded solder. The bismuth
+            containing solder is typically more expensive, but for small quantities this is not too much of a problem.
+        </p>
+        <h3>
+            The oven
+        </h3>
+        <p>
+            A typical toaster oven is sufficient for this task, and in my case, I found a small toaster oven from Walmart for $28 CAD.
+        </p>
+        <img src="toaster.jpg" alt="Cheap toaster oven">
+        <p>
+            In addition to the oven, when reflowing solder paste, a specific temperature curve should be followed. While this is not
+            completely necessary, it is a good feature to have. 
+        </p>
+        <img src="reflow-profile.png" alt="Graph showing the reflow profile">
+        <p>
+            This graph shows the reflow curve of the bismuth containing low temperature solder paste, which should be roughly followed
+            for best results. 
+        </p>
+        <h3>
+            The controller
+        </h3>
+        <p>
+            A dedicated controller is not strictly required; you could just stick a thermometer into the oven and turn it on and off like a caveman,
+            but this is obviously not ideal. In my case, I will use a microcontroller and 
+            thermocouple to control the oven.
+        </p>
+        <p>
+            The main parts of this controller will include the following.
+        </p>
+        <ul>
+            <li>Microcontroller</li>
+            <li>Relay</li>
+            <li>Display</li>
+            <li>Some buttons for user input</li>
+            <li>Power supply</li>
+        </ul>
+        <p>
+            For the microcontroller, I used the ATMega328P. While I would normally use a more powerful chip, controlling an oven is not exactly 
+            the most demanding task, and I also didn't want to put too much effort into writing the display driver, so with the ATMega, I could just 
+            use some Arduino libraries. The relay is just a generic one rated for 20A, with a 5V coil. While the 5V coil requires more current to run, 
+            I chose it so that I did not need two different supply voltages, and/or a 5V regulator. The display I am using is an ST7735 based 
+            TFT LCD display. It has a terrible viewing angle, but it works well enough for this.
+        </p>
+        <p>
+            As for the power supply, pretty much any DC power supply will work, and in my case, I decided to use an old phone charger, which 
+            probably seems really strange, but it works and its what I had on hand.
+        </p>
+        <img src="parts.png" alt="Most of the parts of the project">
+
+        <p>
+            I shoved all of these into a plastic box of around 5" x 2.5" x 2", into which I sawed a rectangular hole for the display.
+        </p>
+    </div>
+    <script src="/page_template.js"></script>
+</body>
