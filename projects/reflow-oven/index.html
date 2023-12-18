@@ -58,9 +58,10 @@
             <li>Power supply</li>
         </ul>
         <p>
-            For the microcontroller, I used the ATMega328P. While I would normally use a more powerful chip, controlling an oven is not exactly 
-            the most demanding task, and I also didn't want to put too much effort into writing the display driver, so with the ATMega, I could just 
-            use some Arduino libraries. The relay is just a generic one rated for 20A, with a 5V coil. While the 5V coil requires more current to run, 
+            For the microcontroller, I used the ATMega328P. While the atmega isn't exactly a modern chip, controlling an oven is not exactly 
+            the most demanding task, and I also didn't want to put too much effort into writing the display driver, so with the atmega, I could just 
+            use some Arduino libraries. The relay is just a generic one rated for 20A, with a 5V coil. While the 5V coil requires more current to run 
+            compared to a 12V one, 
             I chose it so that I did not need two different supply voltages, and/or a 5V regulator. The display I am using is an ST7735 based 
             TFT LCD display. It has a terrible viewing angle, but it works well enough for this.
         </p>
@@ -69,9 +70,20 @@
             probably seems really strange, but it works and its what I had on hand.
         </p>
         <img src="parts.png" alt="Most of the parts of the project">
-
         <p>
-            I shoved all of these into a plastic box of around 5" x 2.5" x 2", into which I sawed a rectangular hole for the display.
+            I then shoved all of these into a plastic box of around 5" x 2.5" x 2", into which I sawed a rectangular hole for the display.
+        </p>
+        <img src="stuff_on_floor.jpg" alt="A bunch of parts and stuff on the floor">
+        <p>
+            The wiring method is slightly sketchy; consisting of ring terminations screwed together, insulated with large amounts of scotch tape.
+            It should be fine for short durations of supervised use though.
+        </p>
+        <img src="oven.jpg" alt="The finished oven with its controller">
+        <p>
+            Heres an image of the "finished" reflow oven. Currently the thermocouple just goes through the door, but I might decide to drill a small
+            hole or something to run it through. I had some issues with thermal "lag", the temperature according to the thermocouple would often
+            continue to go up even after the oven was switched off, meaning that the temperature accuracy tends to be kind of bad. This is generally 
+            fine for most projects though.
         </p>
     </div>
     <script src="/page_template.js"></script>

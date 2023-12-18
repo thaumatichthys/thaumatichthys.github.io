@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <div hidden id="page-title">
+        Solving vector problems using matrices
+    </div>
+    <div hidden id="page-content">
+        <p>
+            July 16, 2023
+        </p>
+        <p>
+            This is mostly meant for PHYS 170.
+        </p>
+        <p>
+            When given a problem with 2D or 3D vectors, in a statics question, this often means that the forces will add up to a net zero.
+            (insert q9 as an example)
+            Fb, Fc, Fd, and Fa will add up to equal zero.
+            In this case, since the positions of all the vectors are known, all of their unit vectors will also be known.
+            In this case, we need to use the unit vectors instead of just the vector components, since these components are of length of the cables, 
+            and not the actual force components.
+
+        </p>
+        <p>
+            Remember, the unit vector is just a vector of magnitude 1, with the same direction as the vector it represents.
+            We will use these to obtain the ratios between all of the vector components.
+        </p>
+        <p>
+            We can set up the equations as such:
+        </p>
+<p class="codebox">Fbx + Fcx + Fdx = Fax
+Fby + Fcy + Fdy = Fay
+Fbz + Fcz + Fdz = Faz
+</p>
+        <p>
+            where Fbx, Fcx, Fdx, etc are the unit vector components of all the cable vectors.
+        </p>
+        <p>
+            This, as written, can be imagined as a 4x3 "augmented" matrix. This can then be plugged into a matrix calculator, and solved via the RREF function.
+            (I won't go into how to solve it manually, since I don't know how.)
+        </p>
+        <p>
+            What this is doing, is that it is 
+        </p>
+
+
+    </div>
+    <script src="/page_template.js"></script>
+</body>
