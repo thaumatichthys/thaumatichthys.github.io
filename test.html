@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <div hidden id="page-title">
+        TITLE!
+    </div>
+    <div hidden id="page-content">
+        <p class="codebox">content 0</p>
+
+        <p>
+            this is some more text
+        </p>
+        <p class="codebox">content 1</p>
+        <p class="codebox">content 2</p>
+        <p class="codebox">content 3</p>
+        <div>
+            <p>stuff in div:</p>
+            <p class="codebox">content 4</p>
+        </div>
+    </div>
+    <script src="/page_template.js"></script>
+
+<!--
+    <script>
+
+var collection = document.getElementsByClassName("codebox");
+const length = collection.length;
+var newDivs = new Array(length);
+var buttonElements = new Array(length);
+var contents = new Array(length);
+
+const hiddenButtonText = "View Code";
+const shownButtonText = "Hide Code";
+
+for (var i = 0; i < collection.length; i++) {
+    newDivs[i] = document.createElement('div');
+
+    newDivs[i].appendChild(collection[i].cloneNode(true));
+    collection[i].parentNode.replaceChild(newDivs[i], collection[i]);
+
+    newDivs[i].className = "codeBoxContent";
+    buttonElements[i] = document.createElement("div");
+    buttonElements[i].innerHTML = hiddenButtonText;
+    buttonElements[i].className = "codeBoxButton";
+    newDivs[i].parentNode.insertBefore(buttonElements[i], newDivs[i]);
+    contents[i] = buttonElements[i].nextElementSibling;
+    contents[i].style.opacity = 0;
+    contents[i].style.height = 0;
+
+    (function(i) {
+        buttonElements[i].addEventListener("click", function() {
+            buttonElements[i].classList.toggle("active");
+            if (contents[i].style.opacity == 0) {
+                contents[i].style.height = "auto";
+                contents[i].style.opacity = 1;
+                buttonElements[i].innerHTML = hiddenButtonText;
+            } 
+            else {
+                contents[i].style.opacity = 0;
+                setTimeout(function() {
+                    contents[i].style.height = 0;
+                }, 
+                500);
+                buttonElements[i].innerHTML = shownButtonText;
+            }
+        });
+    })(i);
+}
+    </script>-->
+</body>
