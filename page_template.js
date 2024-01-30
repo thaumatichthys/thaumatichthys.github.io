@@ -91,8 +91,8 @@ function SetUpCodeBoxes() {
 	var fillers = new Array(length);
 	var previousTimeoutID;
 
-	const hiddenButtonText = "View Code";
-	const shownButtonText = "Hide Code";
+	const hiddenButtonText = "(Expand)";
+	const shownButtonText = "(Hide)";
 	const transitionTime = 320;
 
 	for (var i = 0; i < collection.length; i++) {
@@ -123,7 +123,7 @@ function SetUpCodeBoxes() {
 					contents[i].style.opacity = 0;
 					previousTimeoutID = setTimeout(function() {
 						contents[i].style.height = 0;
-						newDivs[i].style.height = "45px";
+						newDivs[i].style.height = "44px";
 					}, 
 					transitionTime);
 					contents[i].style.pointerEvents = "none";
@@ -134,7 +134,7 @@ function SetUpCodeBoxes() {
 		console.log(i);
 		contents[i].style.opacity = 0;
 		contents[i].style.height = 0;
-		newDivs[i].style.height = "45px";
+		newDivs[i].style.height = "44px";
 	}
 }
 
