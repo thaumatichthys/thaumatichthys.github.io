@@ -58,7 +58,7 @@ const string_template = `<!DOCTYPE html>
 </body>
 </html>`;
 
-function updatePage() {
+function UpdatePage() {
 	const parser = new DOMParser();
 	const page_template = parser.parseFromString(string_template, 'text/html');
 
@@ -71,7 +71,6 @@ function updatePage() {
 
 	for (var i = 0; i < n_codeboxes; i++) {
 		codeBoxes[0].className = "codeBoxInst";
-		//console.log(page_template);
 	}
 	console.log(codeBoxes.length)
 
@@ -83,73 +82,61 @@ function updatePage() {
 	console.log("Page loaded through JS")
 }
 
-updatePage();
+function SetUpCodeBoxes() {
+	var collection = document.getElementsByClassName("codeBoxInst");
+	const length = collection.length;
+	var newDivs = new Array(length);
+	var buttonElements = new Array(length);
+	var contents = new Array(length);
+	var fillers = new Array(length);
+	var previousTimeoutID;
 
+	const hiddenButtonText = "View Code";
+	const shownButtonText = "Hide Code";
+	const transitionTime = 320;
 
+	for (var i = 0; i < collection.length; i++) {
+		newDivs[i] = document.createElement('div');
 
-var collection = document.getElementsByClassName("codeBoxInst");
-const length = collection.length;
-var newDivs = new Array(length);
-var buttonElements = new Array(length);
-var contents = new Array(length);
+		newDivs[i].appendChild(collection[i].cloneNode(true));
+		collection[i].parentNode.replaceChild(newDivs[i], collection[i]);
+		newDivs[i].className = "codeBoxContent";
+		buttonElements[i] = document.createElement("div");
+		buttonElements[i].innerHTML = hiddenButtonText;
+		buttonElements[i].className = "codeBoxButton";
+		collection[i].style.transition = `opacity ${transitionTime / 1000}s ease-in-out`;
 
-var fillers = new Array(length);
-
-const hiddenButtonText = "View Code";
-const shownButtonText = "Hide Code";
-
-for (var i = 0; i < collection.length; i++) {
-    newDivs[i] = document.createElement('div');
-
-    newDivs[i].appendChild(collection[i].cloneNode(true));
-    collection[i].parentNode.replaceChild(newDivs[i], collection[i]);
-	//newDivs[i].replaceChild(newDivs[i], collection[i]);
-
-	//collection[i].detach().appendTo(newDivs[i]);
-
-
-    newDivs[i].className = "codeBoxContent";
-    buttonElements[i] = document.createElement("p");
-    buttonElements[i].innerHTML = hiddenButtonText;
-    buttonElements[i].className = "codeBoxButton";
-    //newDivs[i].parentNode.insertBefore(buttonElements[i], newDivs[i]);
-
-	//newDivs[i].insertBefore(buttonElements[i], collection[i]);
-
-	newDivs[i].prepend(buttonElements[i]);
-	
-    contents[i] = buttonElements[i].nextElementSibling;
-	//contents[i] = collection[i];
-	//contents[i] = 
-    
-	//fillers[i] = 
-
-    (function(i) {
-        buttonElements[i].addEventListener("click", function() {
-			console.log(i);
-
-            //buttonElements[i].classList.toggle("active");
-            if (contents[i].style.opacity == 0) {
-                contents[i].style.height = "auto";
-                contents[i].style.opacity = 1;
-				buttonElements[i].innerHTML = shownButtonText;
-            } 
-            else {
-                contents[i].style.opacity = 0;
-                setTimeout(function() {
-                    contents[i].style.height = 0;
-                }, 
-                500);
-                buttonElements[i].innerHTML = hiddenButtonText;
-            }
-
-			
-        });
-    })(i);
-	console.log(i);
-	contents[i].style.opacity = 0;
-    contents[i].style.height = 0;
-
-
+		newDivs[i].prepend(buttonElements[i]);
+		contents[i] = buttonElements[i].nextElementSibling;
+		(function(i) {
+			buttonElements[i].addEventListener("click", function() {
+				console.log(i);
+				if (contents[i].style.opacity == 0) {
+					contents[i].style.height = "auto";
+					newDivs[i].style.height = "auto";
+					contents[i].style.opacity = 1;
+					buttonElements[i].innerHTML = shownButtonText;
+					contents[i].style.pointerEvents = "auto";
+					clearTimeout(previousTimeoutID);
+				} 
+				else {
+					contents[i].style.opacity = 0;
+					previousTimeoutID = setTimeout(function() {
+						contents[i].style.height = 0;
+						newDivs[i].style.height = "45px";
+					}, 
+					transitionTime);
+					contents[i].style.pointerEvents = "none";
+					buttonElements[i].innerHTML = hiddenButtonText;
+				}
+			});
+		})(i);
+		console.log(i);
+		contents[i].style.opacity = 0;
+		contents[i].style.height = 0;
+		newDivs[i].style.height = "45px";
+	}
 }
-console.log(document.documentElement.outerHTML);
+
+UpdatePage();
+SetUpCodeBoxes();
