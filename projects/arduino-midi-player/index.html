@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <div hidden id="page-title">
+        Arduino MIDI player
+    </div>
+    <div hidden id="page-content">
+        <p>
+            November 24, 2022
+        </p>
+        <p>
+            The popular Arduino Uno, Nano, and pro-mini series all use the ATMega328P microcontroller. This IC is quite old nowadays, but is still widely used. 
+            It features 2kb of RAM, 32kb of program memory, and 1kb of EEPROM. The Arduino series clocks the chip at 16MHz, which is not too fast, but 
+            enough for this program to play MIDI notes on it.
+        </p>
+        <p>
+            The way this program works is that it has a buffer of data in RAM, and it basically writes square wave signals to it. It then clocks it out 
+            one bit at a time to the selected IO pin, wrapping back to the start once it reaches the end. This causes some minor artifacts in the audio 
+            output.
+            <!-- but is this really unfixable? cant it just have the software literally wrap around the buffer in the same way when it writes the signals? --> 
+        </p>
+        <p>
+            The Arduino part of the program reads a PROGMEM array of values, which include data for turning which note on, and for how long. This array 
+            is generated via a python script, which takes a MIDI file and converts it into the C++ header. Simply change the file paths in the script, 
+            run it, and then paste the output directly into music.hpp. 
+        </p>
+        <p>
+            The code below is just for reference, its easier just to download the zip from the <a href="https://ffmpeg.org/download.html" target="_blank">github page</a>.
+        </p>
+        <h4>
+            MIDI to header converter:
+        </h4>
+        <p class="codebox">import mido
+import numpy as np
+import os.path
+
+
+# embarrassingly bad python code
+
+# Dependencies: numpy, mido
+
+# Output format: an array of 32 bit integers.
+# MSB: determines whether the note is to turn on or off
+# 7 bits right of MSB: the MIDI note
+# The rest of the bits: a 24 bit time code, relative to the start of the track, in milliseconds
+
+# Usage: edit the config section, run the program, and paste the output into your header file
+
+# --------- CONFIG START --------- #
+midi_input_path = 'C:/example/midi/file.mid'
+text_output_path = 'C:/example/output/text.txt'
+
+# the arduino has really limited flash, so this option lets you cut off the rest of the track
+max_output_size_bytes = 30720
+# ---------- CONFIG END ---------- #
+
+mid = mido.MidiFile(midi_input_path)
+
+output_array = []
+time_ac = 0  # time accumulation
+length = 0
+
+# get the midi data
+for msg in mid:
+    time_ac += msg.time
+    if msg.type == 'note_on' or msg.type == 'note_off':
+        value = int(round(time_ac * 1000))
+        type = 1  # on
+        if msg.type == 'note_off' or (msg.type == 'note_on' and msg.velocity == 0):
+            type = 0
+        value &= 0x00FFFFFF
+        value |= (type << 31)       # add the command
+        value |= (msg.note << 24)   # add the note number
+        output_array.append(value)
+        length += 1
+        if length >= (max_output_size_bytes / 4):
+            break
+
+# write the midi data into the file
+output_str = ""
+output_str += "#include \"Arduino.h\"\n\n"
+output_str += "// Written by hand in " + str(np.random.randint(1, 100)) + "days, https://github.com" \
+                                                                          "/thaumatichthys\n\nconst uint32_t " \
+                                                                          "midi_array[] PROGMEM= { "
+output_str += " // '" + os.path.basename(midi_input_path) + "'"
+for i in range(length - 1):
+    if not i % 99:
+        output_str += "\n   "
+    output_str += str(output_array[i]) + ", "
+output_str += str(output_array[length - 1]) + "\n};"
+output_str += "\n\nconst uint32_t midi_data_length = " + str(length) + ";\n"
+
+with open(text_output_path, 'w') as f:
+    f.write(output_str)
+
+output_str += "\n// Data size: " + str(int(length * 4 / 100) / 10) + "kb (approx)\n"
+print(output_str)</p>
+            <p>
+                The Arduino sketch contains four main files, the main .ino file, the source and header for the frequency generator, and another 
+                header for storing the music.
+            </p>
+            <h4>
+                Arduino-Note-Player.ino:
+            </h4>
+            <p class="codebox">#include "FreqGen.hpp"
+#include "music.hpp"
+
+
+// Audio note player example program
+
+FreqGen fg;
+unsigned long run_time_ms = 0;
+
+void setup() {
+    // Plays a midi file through pin A1, modify by changing the pinMode and the #defines in FreqGen.cpp and its header file.
+    fg.Init();
+
+    // audio array, length of the array, starting at index.
+    fg.PlayMidi(midi_array, midi_data_length, 0);
+
+    // To play another file, just call StopMidi() then PlayMidi for another array.
+    Serial.begin(9600);
+}
+
+void loop() {
+    // For pausing/stopping
+    if (run_time_ms == 10000) {
+        fg.StopMidi();
+        Serial.println("stopped");
+    }
+
+    // For resuming
+    else if (run_time_ms == 20000) {
+        fg.ResumeMidi();
+        Serial.println("resumed");
+    }
+    
+    // Read the audio file
+    fg.UpdateMidi();
+    run_time_ms++;
+    delay(1);
+}
+
+ISR(TIMER2_COMPA_vect) { // This gets called 80 000 times every second
+    // Update the state machine for the frequency generator
+    fg.Update();
+}
+            </p>
+            <h4>
+                FreqGen.cpp:
+            </h4>
+            <p class="codebox">#include "FreqGen.hpp"
+
+void FreqGen::Init() {
+    pinMode(A1, OUTPUT);
+    cli();
+    TCCR2A = 0;
+    TCCR2B = 0;
+    TCNT2  = 0;
+    OCR2A = 24;
+    TCCR2A |= (1 << WGM21);
+    TCCR2B |= (1 << CS21);   
+    TIMSK2 |= (1 << OCIE2A);
+    sei();
+    for (int i = 0; i < this->bit_length / 8; i++) {
+        this->buffer_ptr[i] = 0;
+    }
+}
+
+void FreqGen::PlayMidi(uint32_t *src, uint32_t src_len, uint32_t index) {
+    this->midi_read_index = index;
+    this->midi_src = src;
+    this->midi_src_len = src_len;
+    this->midi_time_offset = millis();
+    this->playing = true;
+}
+
+void FreqGen::StopMidi() {
+    this->enabled = false;
+    this->playing = false;
+    this->midi_pause_time = millis();
+}
+
+void FreqGen::ResumeMidi() {
+    this->enabled = true;
+    this->playing = true;
+    this->midi_time_offset += (millis() - this->midi_pause_time);
+}
+
+void FreqGen::UpdateMidi() {
+    if ((!this->playing) || (this->midi_read_index > this->midi_src_len))
+        return;
+    uint32_t note_data = pgm_read_dword(&this->midi_src[this->midi_read_index]);
+    uint32_t note_time = note_data & 0x00FFFFFF;
+    uint8_t note = (note_data >> 24) & 0x7F;
+    bool note_action = note_data & 0x80000000;
+    if (((millis() - this->midi_time_offset) >= note_time)) {
+        this->SetMidiNote(note, note_action);
+        this->midi_read_index++;
+    }
+}
+
+void FreqGen::SetMidiNote(uint8_t note, bool on) {
+    uint16_t freq = (uint16_t) (440 * pow(2, (note - 69) / 12.0f));
+    this->ChangeFreq(freq, on);
+}
+
+void FreqGen::ChangeFreq(uint16_t freq, bool add) {
+    const uint8_t on_samples = 5;
+    this->enabled = false;
+    cli();
+    uint16_t period = (this->update_freq / freq);
+    for (uint16_t i = 0; i < this->bit_length; i++) {
+        if ((i % period) < 5) {
+        if (add)
+            this->buffer_ptr[i / 8] |= (uint8_t) 1 << (i % 8); // the bit order is backwards but since it is also read backwards it doesnt actually matter
+        else // remove the frequency instead
+            this->buffer_ptr[i / 8] &= ~((uint8_t) 1 << (i % 8));
+        }
+        else 
+        i += period - on_samples; // this is an important optimization; it skips past the off sections.
+    }
+    sei();
+    this->enabled = true;
+}
+
+void FreqGen::Update() {
+    if (!this->enabled)
+        return;
+    uint16_t bit_index_copy = this->bit_index;
+    uint8_t within_byte = bit_index_copy % 8;
+    uint16_t byte_index = (bit_index_copy - within_byte) / 8;
+    bool state = this->buffer_ptr[byte_index] & ((uint8_t) 1 << within_byte);
+    if (state)
+        OUTPUT_HIGH;
+    else
+        OUTPUT_LOW;
+    this->bit_index++;
+    if (this->bit_index >= this->bit_length)
+        this->bit_index = 0;
+}
+            </p>
+            <h4>
+                FreqGen.hpp:
+            </h4>
+            <p class="codebox">#include "Arduino.h"
+#define OUTPUT_LOW    (PORTC &= 0b11111101)
+#define OUTPUT_HIGH   (PORTC |= 0b00000010)
+
+class FreqGen {
+    static const uint16_t bit_length = 650 * 8;
+    const uint32_t update_freq = 80000;
+    
+    volatile uint16_t bit_index = 0;
+    volatile uint8_t buffer_ptr[bit_length / 8];
+    volatile bool enabled = false;
+
+    uint32_t *midi_src;
+    uint32_t midi_time_offset = 0;
+    uint32_t midi_src_len; // length as in number of elements, not bytes
+    uint32_t midi_read_index = 0;
+    uint32_t midi_pause_time = 0;
+    bool playing = false;
+public:
+    void Init();
+    void Update();
+    void ChangeFreq(uint16_t freq, bool add);
+    void SetMidiNote(uint8_t note, bool on);
+    void PlayMidi(uint32_t *src, uint32_t src_len, uint32_t index);
+    void UpdateMidi();
+    void ResumeMidi();
+    void StopMidi();
+};
+            </p>
+            <p>
+                music.hpp just contains the converted MIDI data and its length.
+            </p>
+    </div>
+    <script src="/page_template.js"></script>
+</body>
