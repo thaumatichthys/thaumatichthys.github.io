@@ -17,7 +17,6 @@
             The way this program works is that it has a buffer of data in RAM, and it basically writes square wave signals to it. It then clocks it out 
             one bit at a time to the selected IO pin, wrapping back to the start once it reaches the end. This causes some minor artifacts in the audio 
             output.
-            <!-- but is this really unfixable? cant it just have the software literally wrap around the buffer in the same way when it writes the signals? --> 
         </p>
         <p>
             The Arduino part of the program reads a PROGMEM array of values, which include data for turning which note on, and for how long. This array 
@@ -25,7 +24,8 @@
             run it, and then paste the output directly into music.hpp. 
         </p>
         <p>
-            The code below is just for reference, its easier just to download the zip from the <a href="https://ffmpeg.org/download.html" target="_blank">github page</a>.
+            The code below is just for reference, its easier just to download the zip from the 
+            <a href="https://github.com/thaumatichthys/Arduino-Note-Player/tree/main" target="_blank">github page</a>.
         </p>
         <h4>
             MIDI to header converter:
