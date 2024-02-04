@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <div hidden id="page-title">
+        QCW Tesla Coil
+    </div>
+    <div hidden id="page-content">
+        <p>
+            Summer 2023
+        </p>
+        <p>
+            A tesla coil is a specialized type of resonant transformer, typically characterized by a cylindrical secondary coil 
+            consisting of many windings of fine wire. It is optimized for generating high AC voltages, allowing the production 
+            of large electric sparks, produced when the electric field produced by the coil causes the air to break down and ionize,
+            allowing the charge to be conducted away through mainly capacitive coupling.
+        </p>
+        <p>
+            The original tesla coils made by Nikola Tesla were made possible by spark gaps. The spark gap acted like a switch that 
+            would suddenly close once the voltage on a resonant capacitor became sufficiently high, dumping a pulse of energy into 
+            the LC tank circuit which was made up by the resonant capacitor and the primary of the tesla coil. 
+        </p>
+        <p>
+            Later, people would make tesla coils which were switched using vacuum tubes, and later, transistors. These modern tesla 
+            coils are called solid state tesla coils.
+        </p>
+        <p>
+            Modern tesla coils are typically switched using a type of transistor called the IGBT (insulated gate bipolar transistor). 
+            Compared to regular bipolar transistors, their insulated, MOSFET-like, voltage operated gate is easier to switch than that
+            of bipolar transistors. In BJTs, the collector current is usually a multiple of of gate current, with gains of usually 
+            around a few tens to hundreds of times. In a tesla coil, the reactive currents can reach hundreds of amps, meaning a BJT would 
+            require a lot of current to turn fully on. On the other hand, MOSFETs are sometimes used, but they also have drawbacks. 
+            When a MOSFET is turned on, it acts like a resistor. Modern devices can have on resistances of single digit milliohms, 
+            which is quite impressive, but since it acts like a resistor, which has a power dissipation function of P = I^2 * R, at high 
+            currents, the power loss can still be quite high. IGBTs and BJTs have a slightly more constant voltage drop of a few volts 
+            when they are turned on, essentially acting more like a forward biased diode. This means that at low currents, they are 
+            usually less efficient than a MOSFET, but at high currents, they become more efficient. 
+        </p>
+        <p>
+            The IGBT combines the relative ease of gate control of a MOSFET with the relatively constant voltage drop of a BJT, making
+            them very suitable for use in a tesla coil. Another thing is that MOSFETs usually become very expensive when they are rated 
+            for the high voltages that tesla coils operate at.
+        </p>
+    </div>
+    <script src="/page_template.js"></script>
+</body>

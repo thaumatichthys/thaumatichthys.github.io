@@ -24,6 +24,9 @@
             back to the original goal of the project, we can upsample the Bad Apple!! audio track to 384 ksamples/s, then band limit it 
             to around 20kHz, and then store the video in the rest. 
         </p>
+        <h4>
+            Writing video into audio
+        </h4>
         <p>
             My approach to do this was firstly, using a youtube downloader and <a href="https://ffmpeg.org/download.html" target="_blank">FFMPEG</a>,
             I converted the video into a series of frames. This can be done using this command:
@@ -132,6 +135,13 @@ print("Number of samples per column: " + str(samples_per_column))
 print("Number of columns per frame: " + str(HORIZONTAL_RESOLUTION))
         </p>
         <p>
+            The output audio can be downloaded from 
+            <a href="https://drive.google.com/file/d/1J_0VLQaYFAz2xDEYzrlPcvFtVMBknwyS/view?usp=sharing" target="_blank">here.</a>
+        </p>
+        <h4>
+            Viewing the spectrogram
+        </h4>
+        <p>
             The output can kind of be viewed in Audacity's spectrogram, but this method is kind of janky and does not allow for proper video playback.
         </p>
         <img src="audacity-screenshot.png" alt="Screenshot of Audacity's spectrogram showing one frame of Bad Apple!!.">
@@ -187,7 +197,16 @@ animation = FuncAnimation(fig, update, frames=n_frames, interval=1000 / FRAMES_P
 animation.save(VIDEO_OUTPUT, writer='ffmpeg', fps=FRAMES_PER_SECOND)
 plt.show()
         </p>
+        <p>
+            Frame from the python script:
+        </p>
         <img src="matplotlib-output.png" alt="Output of spectrogram script showing one frame of Bad Apple!!.">
+        <h>
+            I combined the output and the audio into a youtube video here.
+        </p>
+        <div class="youtube-embed">
+            <iframe width="1280" height="720" src="https://www.youtube.com/embed/lafqn6YC6fA" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
     </div>
     <script src="/page_template.js"></script>
 </body>

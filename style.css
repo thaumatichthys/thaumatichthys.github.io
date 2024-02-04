@@ -265,3 +265,18 @@ img {
 	min-height: fit-content;
 	background-color: #626279;
 }
+
+.youtube-embed {
+	position: relative;
+	width: 70%;
+	padding-bottom: 39.375%; /* 16:9 aspect ratio (height/width * 100) */
+	margin: auto;
+}
+
+.youtube-embed iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
