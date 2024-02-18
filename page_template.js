@@ -5,14 +5,6 @@ const input_content = document.getElementById("page-content").innerHTML;
 const string_template = `<!DOCTYPE html>
 <html>
 <head>
-	<script async src="https://www.googletagmanager.com/gtag/js?id=G-F13RJTEZ4T"></script>
-	<script>
-		window.dataLayer = window.dataLayer || [];
-		function gtag(){dataLayer.push(arguments);}
-		gtag('js', new Date());
-
-		gtag('config', 'G-F13RJTEZ4T');
-	</script>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
 	<title>Thaumatichthys</title>
@@ -96,7 +88,6 @@ function SetUpCodeBoxes() {
 	var newDivs = new Array(length);
 	var buttonElements = new Array(length);
 	var contents = new Array(length);
-	var fillers = new Array(length);
 	var previousTimeoutID;
 
 	const hiddenButtonText = "(Expand)";
@@ -148,3 +139,15 @@ function SetUpCodeBoxes() {
 
 UpdatePage();
 SetUpCodeBoxes();
+
+
+var script = document.createElement('script');
+script.src = "https://www.googletagmanager.com/gtag/js?id=G-F13RJTEZ4T";
+script.async = true;
+script.onload = function() {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-F13RJTEZ4T');
+};
+document.head.appendChild(script);
