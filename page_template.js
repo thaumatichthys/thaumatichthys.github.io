@@ -149,5 +149,6 @@ script.onload = function() {
 	function gtag(){dataLayer.push(arguments);}
 	gtag('js', new Date());
 	gtag('config', 'G-F13RJTEZ4T');
+	console.log("asd");
 };
 document.head.appendChild(script);
