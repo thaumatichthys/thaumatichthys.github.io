@@ -40,6 +40,71 @@
             them very suitable for use in a tesla coil. Another thing is that MOSFETs usually become very expensive when they are rated 
             for the high voltages that tesla coils operate at.
         </p>
+        <h4>
+            Inverter topologies
+        </h4>
+        <p>
+            There are a few different ways that modern tesla coils are constructed. Generally for large tesla coils, they use either 
+            a half bridge or a full bridge. 
+        </p>
+        <p>(insert images)</p>
+        <p>
+            Half bridges generally consist of fewer transistors, but they can only deliver half the supply voltage to the load. A full 
+            bridge uses at least four transistors, but it can deliver the full supply voltage to the load.
+        </p>
+        <h3>
+            Types of tesla coil
+        </h3>
+        <!--consider putting this section before the transistor tangent-->
+        <h4>
+            Single resonant tesla coils (SSTC)
+        </h4>
+        <p>
+            These coils operate with the secondary circuit (and not the primary) in resonance.
+        </p>
+        <p>
+            These tesla coils are generally considered to be simpler to construct and operate, since many popular circuits stemming 
+            from the original designs by Steve Ward and others implement self tuning circuits that keep the secondary circuit perfectly 
+            in resonance. The primary circuit is not in resonance, and the primary inductance somewhat limits the current to (relatively) 
+            low levels. Because of this, sometimes they can be built to operate continuously, "CW". When operated in pulses, typically, 
+            the interruption is implemented by simply toggling an enable pin in the IGBT drivers, and random noise is sufficient to 
+            cause the circuit to start oscillating. The self tuning circuitry usually uses either an antenna (with appropriate protection),
+            or a current transformer around the bottom lead of the secondary coil.
+        </p>
+        <h4>
+            Dual resonant tesla coils (DRSSTC)
+        </h4>
+        <p>
+            The DRSSTC is a very popular type of tesla coil due to the fact that it can make impressively sized arcs. These are much 
+            more difficult to build however, since the primary circuit is also in resonance. Due to this, the primary and secondary circuits need 
+            to be carefully built to match eachother's resonant frequencies, requiring much more careful design. In addition, since the 
+            primary circuit is in resonance, when in tune, it appears to almost be a dead short circuit. This causes the current to rise 
+            extremely quickly, and to extremely high levels. For instance, a small tabletop DRSSTC can have primary currents exceeding 
+            100A. This can cause several issues, which all need to be addressed. Firstly, with such high currents, any stray inductance 
+            in the inverter can cause high voltage spikes that can kill the transistors if not kept in check. In addition, before, with 
+            the SSTC, the transistor drivers can simply be shut down at any time. This is not possible with a DRSSTC. If the transistors 
+            transition from fully on to off while there are such high currents flowing through them, they will likely explode. This causes 
+            the need for circuitry that synchronises the turn offs with primary current zero crossings. The need for this synchronization 
+            means that DRSSTCs rarely use secondary feedback like regular SSTCs, and instead use primary feedback. DRSSTCs typically operate 
+            in pulses of around 100 microseconds, and they are basically never directly operated in continuous mode.
+        </p>
+        <p>
+            A popular program for assisting the design of these is JavaTC. It helps calculate the characteristics of a user defined
+            tesla coil, and it is extremely useful for the design of anything beyond a regular SSTC. One particular characteristic it shows
+            (beyond resonant frequencies and stuff) is the coupling factor (k) of the tesla coil. This is the same coupling factor for 
+            regular transformers, and it is essentially a measure of how much the magnetic fields of the secondary and primary overlap.
+            This value is typically made to be low in DRSSTCs, usually around 0.2-0.3.
+        </p>
+        <h4>
+            Quasi-continuous-wave dual resonant tesla coils (QCWDRSSTC)
+        </h4>
+        <p>
+            Despite just saying that these don't exist, there is another type of tesla coil that is both dual resonant, and is operated 
+            in longer (although not quite continuous) pulses. The QCWDRSSTC is unique in that it has an unusually high coupling factor,
+            usually >0.4. Usually, they also have higher primary inductances, and a shorter and stumpier secondary coil. Operationally,
+            it is essentially a DRSSTC but with lower primary current, and most importantly, operated in a long ramp instead of a short 
+            pulse. 
+        </p>
     </div>
     <script src="/page_template.js"></script>
 </body>
