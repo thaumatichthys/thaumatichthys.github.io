@@ -292,8 +292,7 @@
 		else {
 			// stop the stream if its running and the switch is turned off
 			if (screenShare) {
-				stream.getTracks().forEach( track => track.stop());
-				screenShare = false;
+				stopScreenShare();
 			}
 		}
 	}
@@ -424,56 +423,87 @@
 		// return the graphical output
 		return dummyElement;
 	}
-
-	// set up the screen share session
-	function initScreenShare() {
-		// make sure user's browser supports the ImageCapture function, I used some code from here https://codepedia.info/detect-browser-in-javascript
-		if (!(
-			navigator.userAgent.match(/chrome|chromium|crios/i) ||
-			navigator.userAgent.match(/opr\//i) // I have not tested this with opera
-		
-		)) {
-			// warn the user if their browser isnt chrome
-			if (!confirm("Your browser, more likely than not, will not work with this utility. Please use Chrome or Edge.\n\n\
-				Are you sure you want to continue? Note that it will probably crash the program (No big deal though, just refresh if that happens)\n\n\
-				Read this: https://developer.mozilla.org/en-US/docs/Web/API/ImageCapture")) {
-				document.getElementById("switch").checked = false;
-				return false;
-			}
-		}
-		// gets called if the user cancels the stream through the browser notification thing
-		function end() {
+	var stream;
+	var videoElement;
+	async function initScreenShare() {
+		try {
+			const displayMediaOptions = {
+				video: {
+					displaySurface: "browser",
+				},
+				audio: {
+					suppressLocalAudioPlayback: true,
+				},
+				preferCurrentTab: false,
+				selfBrowserSurface: "exclude",
+				systemAudio: "include",
+				surfaceSwitching: "include",
+				monitorTypeSurfaces: "include",
+			};
+			stream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
+			videoElement = document.createElement('video');
+			videoElement.srcObject = stream;
+			const canvas = document.createElement('canvas');
+			canvas.style.display = "none";
+			const context = canvas.getContext('2d');
+			videoElement.addEventListener('loadedmetadata', () => {
+				canvas.width = videoElement.videoWidth;
+				canvas.height = videoElement.videoHeight;
+			});
+			videoElement.addEventListener('play', () => {
+				let lastFrameTime = performance.now();
+				var dataURL = canvas.toDataURL('image/png');
+				var img = new Image();
+				function drawFrame() {
+					const currentTime = performance.now();
+					const elapsedMilliseconds = currentTime - lastFrameTime;
+					if (elapsedMilliseconds >= 100) {
+						if (videoElement.paused || videoElement.ended) {
+							return;
+						}
+						context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+						
+						img.src = dataURL;
+						createImageBitmap(canvas).then(function (imageBitmap) {
+							updateGameInfo(imageBitmap);
+						}).catch(function (error) {
+							console.error('Error creating ImageBitmap:', error);
+						});
+						lastFrameTime = currentTime;
+					}
+					setTimeout(drawFrame, 100);
+				}
+				drawFrame();
+			});
+			videoElement.play();
+			screenShare = true;
+			videoElement.addEventListener('ended', stopScreenShare);
+		} catch (error) {
+			console.error('Error accessing screen:', error);
 			screenShare = false;
 			document.getElementById("switch").checked = false;
 		}
-		// get the stream
-		let stream_promise = navigator.mediaDevices.getDisplayMedia({video: { mediaSource: "screen" }});
-		// when the stream promise is fulfilled
-		stream_promise.then (
-			function (value) {
-				// get the video track
-				const video = value.getVideoTracks()[0];
-				globalThis.image = new ImageCapture(video);
-				globalThis.stream = value;
-				screenShare = true
-				// add an event listener for when the stream is cancelled
-				video.addEventListener('ended', end);
-				return true;
-			},
-			function (error) {
-				// flip the switch back off and set the screenShare state to false if there is an error
-				end();
-				return false;
-			}
-		);
+    }
+
+	function stopScreenShare() {
+		if (stream) {
+			const tracks = stream.getTracks();
+			tracks.forEach(track => track.stop());
+			videoElement.pause();
+		}
+		document.getElementById("switch").checked = false;
+		screenShare = false;
 	}
 
 	// retrieve info from the screen share, parse the data, and display the output
-	async function updateGameInfo() {
+	async function updateGameInfo(bitmap) {
 		// check if the stream is working
-		if (!(image.track.readyState != 'live' || !image.track.enabled || image.track.muted)) {
+		//if (!(image.track.readyState != 'live' || !image.track.enabled || image.track.muted) || videoReady) {
+		if (screenShare || true) {
+			console.log("updategameinfo running");
 			// get a frame
-			const bitmap = await image.grabFrame();
+			//const bitmap = await image.grabFrame();
+			//const bitmap = globalThis.imageBitmap;
 			// set the warthunder dimensions to the frame's dimensions
 			WARTHUNDER_HEIGHT = bitmap.height;
 			WARTHUNDER_WIDTH = bitmap.width;
@@ -600,7 +630,7 @@
 	function loop() {
 		if (screenShare) {
 			// if auto mode on, do auto mode things
-			updateGameInfo();
+			//updateGameInfo();
 			displayAutoResult();
 		}
 		else {
