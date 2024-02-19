@@ -1,13 +1,15 @@
-
+/*
+ * 	hi
+ * 	these are the terrible internals of the site
+ */
 const input_title = document.getElementById("page-title").innerHTML;
 const input_content = document.getElementById("page-content").innerHTML;
-
 const string_template = `<!DOCTYPE html>
 <html>
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-	<title>Thaumatichthys</title>
+	<title id="page-tab-title">Thaumatichthys</title>
 	<link rel="icon" type="image/x-icon" href="/res/wavelet.png">
 	<link href="/style.css" rel="stylesheet" type="text/css" />
 </head>
@@ -63,6 +65,7 @@ function UpdatePage() {
 	const page_template = parser.parseFromString(string_template, 'text/html');
 
 	page_template.getElementById("page-title").innerHTML = input_title;
+	page_template.getElementById("page-tab-title").innerHTML = input_title;
 	page_template.getElementById("page-text").innerHTML = input_content;
 
 	const codeBoxes = page_template.getElementsByClassName("codebox");
@@ -73,12 +76,9 @@ function UpdatePage() {
 		codeBoxes[0].className = "codeBoxInst";
 	}
 	console.log(codeBoxes.length)
-
 	document.open();
 	document.documentElement.innerHTML = page_template.documentElement.innerHTML;
-	//document.write(page_template.documentElement.innerHTML);
 	document.close();
-
 	console.log("Page loaded through JS")
 }
 
@@ -89,11 +89,9 @@ function SetUpCodeBoxes() {
 	var buttonElements = new Array(length);
 	var contents = new Array(length);
 	var previousTimeoutID;
-
 	const hiddenButtonText = "(Expand)";
 	const shownButtonText = "(Hide)";
 	const transitionTime = 320;
-
 	for (var i = 0; i < collection.length; i++) {
 		newDivs[i] = document.createElement('div');
 
@@ -140,7 +138,6 @@ function SetUpCodeBoxes() {
 UpdatePage();
 SetUpCodeBoxes();
 
-
 var script = document.createElement('script');
 script.src = "https://www.googletagmanager.com/gtag/js?id=G-F13RJTEZ4T";
 script.async = true;
@@ -149,6 +146,5 @@ script.onload = function() {
 	function gtag(){dataLayer.push(arguments);}
 	gtag('js', new Date());
 	gtag('config', 'G-F13RJTEZ4T');
-	console.log("asd");
 };
 document.head.appendChild(script);
