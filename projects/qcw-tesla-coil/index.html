@@ -2,109 +2,198 @@
 <html>
 <body>
     <div hidden id="page-title">
-        QCW Tesla Coil
+        QCW tesla coil
     </div>
     <div hidden id="page-content">
         <p>
-            Summer 2023
+            Summer 2023 (Not quite finished)
         </p>
         <p>
-            A tesla coil is a specialized type of resonant transformer, typically characterized by a cylindrical secondary coil 
-            consisting of many windings of fine wire. It is optimized for generating high AC voltages, allowing the production 
-            of large electric sparks, produced when the electric field produced by the coil causes the air to break down and ionize,
-            allowing the charge to be conducted away through mainly capacitive coupling.
+            The QCW tesla coil is a further development of the DRSSTC (dual resonant solid state tesla coil). Visually,
+            it usually has a shorter and wider secondary coil compared to a regular SSTC or DRSSTC. They also typically 
+            make straighter and longer arcs than DRSSTCs. Some QCW coils are known to make sparks over ten times the length 
+            of their secondary coil.
         </p>
         <p>
-            The original tesla coils made by Nikola Tesla were made possible by spark gaps. The spark gap acted like a switch that 
-            would suddenly close once the voltage on a resonant capacitor became sufficiently high, dumping a pulse of energy into 
-            the LC tank circuit which was made up by the resonant capacitor and the primary of the tesla coil. 
-        </p>
-        <p>
-            Later, people would make tesla coils which were switched using vacuum tubes, and later, transistors. These modern tesla 
-            coils are called solid state tesla coils.
-        </p>
-        <p>
-            Modern tesla coils are typically switched using a type of transistor called the IGBT (insulated gate bipolar transistor). 
-            Compared to regular bipolar transistors, their insulated, MOSFET-like, voltage operated gate is easier to switch than that
-            of bipolar transistors. In BJTs, the collector current is usually a multiple of of gate current, with gains of usually 
-            around a few tens to hundreds of times. In a tesla coil, the reactive currents can reach hundreds of amps, meaning a BJT would 
-            require a lot of current to turn fully on. On the other hand, MOSFETs are sometimes used, but they also have drawbacks. 
-            When a MOSFET is turned on, it acts like a resistor. Modern devices can have on resistances of single digit milliohms, 
-            which is quite impressive, but since it acts like a resistor, which has a power dissipation function of P = I^2 * R, at high 
-            currents, the power loss can still be quite high. IGBTs and BJTs have a slightly more constant voltage drop of a few volts 
-            when they are turned on, essentially acting more like a forward biased diode. This means that at low currents, they are 
-            usually less efficient than a MOSFET, but at high currents, they become more efficient. 
-        </p>
-        <p>
-            The IGBT combines the relative ease of gate control of a MOSFET with the relatively constant voltage drop of a BJT, making
-            them very suitable for use in a tesla coil. Another thing is that MOSFETs usually become very expensive when they are rated 
-            for the high voltages that tesla coils operate at.
+            Some technical characteristics are that they typically have higher coupling than a DRSSTC, with k being usually 
+            greater than 0.4-0.5, rather than the 0.2 and 0.3-ish for DRSSTCs and regular SSTCs. In addition, QCW coils often 
+            run at relatively high frequencies, usually over 400 kHz. They also usually have lower maximum primary current, 
+            which allows for probably the biggest difference: QCW tesla coils run in much longer, ramped pulses of power. Where 
+            a DRSSTC might run in 100µs pulses, a QCW gradually ramps up its output over 10-20ms. According to forum posts and 
+            other internet sources, this ramped power cycle, in combination with a high operating frequency allows the arc to 
+            grow much longer than those from a DRSSTC.
         </p>
         <h4>
-            Inverter topologies
+            Ramping the power
         </h4>
         <p>
-            There are a few different ways that modern tesla coils are constructed. Generally for large tesla coils, they use either 
-            a half bridge or a full bridge. 
-        </p>
-        <p>(insert images)</p>
-        <p>
-            Half bridges generally consist of fewer transistors, but they can only deliver half the supply voltage to the load. A full 
-            bridge uses at least four transistors, but it can deliver the full supply voltage to the load.
-        </p>
-        <h3>
-            Types of tesla coil
-        </h3>
-        <!--consider putting this section before the transistor tangent-->
-        <h4>
-            Single resonant tesla coils (SSTC)
-        </h4>
-        <p>
-            These coils operate with the secondary circuit (and not the primary) in resonance.
+            This ramped power cycle is typically achieved in a few different ways. A popular approach is to simply use a 
+            (very beefy) buck converter to ramp the inverter supply voltage. This method is relatively simple, and has been
+            shown to work very well. A microcontroller controls a large MOSFET or IGBT, which basically PWMs a rectified-mains 
+            power supply, and then this is fed into an LC filter that outputs a relatively smooth, variable DC voltage. This 
+            can then be used to power the inverter.
         </p>
         <p>
-            These tesla coils are generally considered to be simpler to construct and operate, since many popular circuits stemming 
-            from the original designs by Steve Ward and others implement self tuning circuits that keep the secondary circuit perfectly 
-            in resonance. The primary circuit is not in resonance, and the primary inductance somewhat limits the current to (relatively) 
-            low levels. Because of this, sometimes they can be built to operate continuously, "CW". When operated in pulses, typically, 
-            the interruption is implemented by simply toggling an enable pin in the IGBT drivers, and random noise is sufficient to 
-            cause the circuit to start oscillating. The self tuning circuitry usually uses either an antenna (with appropriate protection),
-            or a current transformer around the bottom lead of the secondary coil.
-        </p>
-        <h4>
-            Dual resonant tesla coils (DRSSTC)
-        </h4>
-        <p>
-            The DRSSTC is a very popular type of tesla coil due to the fact that it can make impressively sized arcs. These are much 
-            more difficult to build however, since the primary circuit is also in resonance. Due to this, the primary and secondary circuits need 
-            to be carefully built to match eachother's resonant frequencies, requiring much more careful design. In addition, since the 
-            primary circuit is in resonance, when in tune, it appears to almost be a dead short circuit. This causes the current to rise 
-            extremely quickly, and to extremely high levels. For instance, a small tabletop DRSSTC can have primary currents exceeding 
-            100A. This can cause several issues, which all need to be addressed. Firstly, with such high currents, any stray inductance 
-            in the inverter can cause high voltage spikes that can kill the transistors if not kept in check. In addition, before, with 
-            the SSTC, the transistor drivers can simply be shut down at any time. This is not possible with a DRSSTC. If the transistors 
-            transition from fully on to off while there are such high currents flowing through them, they will likely explode. This causes 
-            the need for circuitry that synchronises the turn offs with primary current zero crossings. The need for this synchronization 
-            means that DRSSTCs rarely use secondary feedback like regular SSTCs, and instead use primary feedback. DRSSTCs typically operate 
-            in pulses of around 100 microseconds, and they are basically never directly operated in continuous mode.
+            The other method is to phase shift the drive signals for the inverter (this only works for full H bridge inverters).
+            Essentially, in a normal full bridge, the left and right halves get signals which are out of phase by 180 degrees,
+            but when modulating the power using phase shifting, this 180 degree phase shift can be modulated to vary the power 
+            going to the primary LC circuit. An advantage of this over changing the pulse width of each half of the H bridge, 
+            according to my understanding, is that it allows half the H bridge to still switch during a current zero crossing, 
+            which reduces strain on the transistors.
         </p>
         <p>
-            A popular program for assisting the design of these is JavaTC. It helps calculate the characteristics of a user defined
-            tesla coil, and it is extremely useful for the design of anything beyond a regular SSTC. One particular characteristic it shows
-            (beyond resonant frequencies and stuff) is the coupling factor (k) of the tesla coil. This is the same coupling factor for 
-            regular transformers, and it is essentially a measure of how much the magnetic fields of the secondary and primary overlap.
-            This value is typically made to be low in DRSSTCs, usually around 0.2-0.3.
+            In the gif below, the top two lines represent the halves of the H bridge, and the bottom represents the output voltage.
+        </p>
+        <img src="regular-shift.gif" alt="desmos graph of the phase shifted waveforms">
+        <p>
+            In this case, the middle line is the one being phase shifted. This half of the H bridge will be "hard switching", and 
+            will heat up much more. This can be a problem, and one method to solve this is to alternate the side that gets phase 
+            shifted. In some drivers such as the <a href="https://tqfp.org/simple-tesla/simpledriver-v23-in-english.html#!prettyPhoto" 
+            target="_blank">Simpledriver 2.3</a>, the side which gets phase shifted can be set to alternate between every long pulse,
+            or between every oscillation cycle. In my driver design, (which is partly based on the Simpledriver), I chose the latter.
+        </p>
+        <p>
+            On a side note, it seems that the Simpledriver's schematic link has gone down, but it can still be found on the wayback
+            machine 
+            <a href="https://web.archive.org/web/20230307111910/https://bsvi.ru/projects/SimpleDriver2/SimpleDriver_2.3.pdf" 
+            target="_blank">here</a>.
+        </p>
+        <p>
+            The (slightly cursed) waveforms for this are shown below.
+        </p>
+        <img src="alternated-shift.gif" alt="desmos graph of the alternated phase shifted waveforms">
+        <p>
+            This is essentially the same thing as before, but the two top lines are swapped every cycle.
         </p>
         <h4>
-            Quasi-continuous-wave dual resonant tesla coils (QCWDRSSTC)
+            Implementing the phase shifter
         </h4>
         <p>
-            Despite just saying that these don't exist, there is another type of tesla coil that is both dual resonant, and is operated 
-            in longer (although not quite continuous) pulses. The QCWDRSSTC is unique in that it has an unusually high coupling factor,
-            usually >0.4. Usually, they also have higher primary inductances, and a shorter and stumpier secondary coil. Operationally,
-            it is essentially a DRSSTC but with lower primary current, and most importantly, operated in a long ramp instead of a short 
-            pulse. 
+            In the Simpledriver, an FPGA + analog approach is used to variably phase shift the input signal. While this method 
+            certainly can work well, I thought that an easier way would be to just use the RP2040 microcontroller's PIO unit.
+            My reasoning was that an RP2040 is much cheaper than an FPGA that could be used for this ($7.65 CAD for the XC9536, 
+            compared to $1.06 for the RP2040). I also thought that it could be more straightforward to design. (Also because I am
+            already kind of familiar with the RP2040).
         </p>
+        <p>
+            The RP2040 has two separate PIO peripherals, each consisting of a shared program memory (which holds a maximum of 32
+            instructions), and four state machines which can independantly run the shared program. There are only nine different 
+            instructions that the state machines can run, but this is sufficient for what I am doing.
+        </p>
+        <p>
+            The phase shift program essentially waits for an input state change, and then sets a counter which increments up to a 
+            certain value, which determines the amount of phase shift. After it reaches this value, it switches the output pin state. 
+            In addition, each time it counts, it makes sure that the input pin state has not switched a second time before it has 
+            finished counting. If it detects this, it immediately switches the output state. This is to ensure that it does not fall 
+            out of sync with the input, since that will almost certainly cause the tesla coil to catastrophically fail.  
+        </p>
+        <p>
+            I also made another program to alternate the phase shift pins every cycle in PIO. The RP2040 has two PIO blocks, but I 
+            wanted to reserve one of them for the fiber optic IO, to control the driver. So I had two different programs that needed 
+            to be run from only one program memory bank.
+        </p>
+        <p>
+            A solution to this problem was to literally just put both programs into the same memory, but to ensure that they each had 
+            an unconditional jump to their starting points. The state machines can be set to start their program counters at a certain 
+            offset, so different state machines could run these different programs independantly. I did get pretty lucky though, since 
+            my two programs just happened to add up to exactly 32 instructions, which perfectly fit in the memory space.
+        </p>
+        <p>
+            PhaseSwapLag.pio:
+        </p>
+        <p class="codebox">.program PhaseSwapLag
+
+; Phase shift program
+public PHASELAG:
+    wait 0 pin 0
+DELAY0:
+    mov x osr ; copy OSR into X, so that if TX is empty, OSR does not change
+    pull noblock
+DELAYLOOP0:
+    jmp pin POSTDELAY0
+    jmp x-- DELAYLOOP0 
+POSTDELAY0:
+    set pins 0
+    wait 1 pin 0
+DELAY1:
+    mov x osr ; copy OSR into X, so that if TX is empty, OSR does not change
+    pull noblock
+DELAYLOOP1: ; if pin is low then return
+    jmp pin SKIP1
+    jmp POSTDELAY1
+SKIP1:
+    jmp x-- DELAYLOOP1 
+POSTDELAY1:
+    set pins 1
+    jmp PHASELAG
+
+; Phase shift alternator program
+public HARDSWAP:
+    jmp CHECK
+RETURN:
+    jmp !y SWAP
+NOTSWAP:
+    mov pins !pins
+    jmp HARDSWAP
+SWAP:
+    mov pins ::pins
+    jmp HARDSWAP
+RISEDETECTED:
+    set x 1
+    mov y !y ; we only need to flip y on the rising edge
+    jmp RETURN side 0
+FALLDETECTED:
+    set x 0
+    jmp RETURN
+CHECK:
+    jmp pin PINHIGH
+    jmp PINLOW
+PINHIGH:
+    jmp !x RISEDETECTED
+    jmp RETURN
+PINLOW:
+    jmp !x RETURN
+    jmp FALLDETECTED
+    jmp RETURN
+
+
+%c-sdk {
+    void PhaseLag_program_init(PIO pio, uint sm, uint offset, uint input_pin, uint output_pin) {
+        pio_sm_config cfg = PhaseSwapLag_program_get_default_config(offset);
+        pio_gpio_init(pio, input_pin);
+        pio_gpio_init(pio, output_pin);
+        sm_config_set_in_pins(&cfg, input_pin); // for WAIT
+        sm_config_set_set_pins(&cfg, output_pin, 1);
+        sm_config_set_jmp_pin(&cfg, input_pin);
+        sm_config_set_clkdiv(&cfg, 1.0f); // the higher the frequency the better here
+        pio_sm_set_consecutive_pindirs(pio, sm, input_pin, 1, false);
+        pio_sm_set_consecutive_pindirs(pio, sm, output_pin, 1, true);
+        pio_sm_init(pio, sm, offset + PhaseSwapLag_offset_PHASELAG, &cfg);
+        pio_sm_set_enabled(pio, sm, true);
+    }
+
+    void HardSwap_program_init(PIO pio, uint sm, uint offset, uint input_base, uint output_base) {
+        pio_sm_config cfg = PhaseSwapLag_program_get_default_config(offset);
+        pio_gpio_init(pio, input_base);
+        pio_gpio_init(pio, output_base);
+        pio_gpio_init(pio, input_base + 1);
+        pio_gpio_init(pio, output_base + 1);
+        sm_config_set_in_pins(&cfg, input_base);
+        sm_config_set_out_pins(&cfg, output_base, 2);
+        sm_config_set_jmp_pin(&cfg, input_base);
+        sm_config_set_clkdiv(&cfg, 1.0f);
+        pio_sm_set_consecutive_pindirs(pio, sm, input_base, 2, false);
+        pio_sm_set_consecutive_pindirs(pio, sm, output_base, 2, true);
+        pio_sm_init(pio, sm, offset + PhaseSwapLag_offset_HARDSWAP, &cfg);
+        pio_sm_set_enabled(pio, sm, true);
+    }
+%}
+        </p>
+        <p>
+            The phase lag program does use quite a few clock cycles each time it counts, so to have a decent resolution, the clock 
+            speed should be pretty high. This is fine though, since the RP2040 can be easily overclocked to around 420 MHz.
+        </p>
+        <!--https://www.desmos.com/calculator/qwpgwqgch3-->
     </div>
     <script src="/page_template.js"></script>
 </body>

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <!-- set page title -->
+  <title>Distance Calculator</title>
+  <!-- link css -->
+  <style>
+    /* set parameters for canvas type */
+    canvas {
+        position: relative;
+        background-color: beige;
+    }
+
+    /* set parameters for the calculator div */
+    #calculator {
+        /* make the elements stack vertically */
+        display: block;
+        /* background colour */
+        background-color: rgb(204, 181, 219);
+        /* make it always less or equal to 550px wide */
+        max-width: 550px;
+        /* center the text */
+        text-align: center;
+        /* round corners */
+        border-radius: 10px;
+        /* set font */
+        font-family: Cambria;
+        /* move it a bit to the right */
+        margin-left: 2%;
+    }
+
+    /* set parameters for the div in which the sliders are placed */
+    .sliders-div {
+        position: relative;
+        background-color: rgb(180, 211, 221);
+        /* align the sliders to the right, or else the sliders would be slightly offset from eachother which looks bad */
+        text-align: right;
+        width: 72%;
+        margin: auto;
+        border-radius: 10px;
+    }
+
+    /* set paramters for the div in which the text inputs are placed */
+    .text-inputs-div {
+        position: relative;
+        /* same thing as for sliders - align them so that only the inputs are aligned, and not necessarily the text */
+        text-align: right;
+        margin: auto;
+        width: 64%;
+    }
+
+    /* set parameters for each slider */
+    .slider {
+        margin-right: 22px;
+        /* make them longer than default */
+        width: 74%;
+    }
+
+    /* set parameters for each text input */
+    .text-input {
+        width: 40%;
+    }
+
+    /* for the text section at the bottom */
+    .additional-info {
+        width: 40%;
+        margin-left: 2%;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    /* set parameters for the image type */
+    img {
+        width: 30%;
+    }
+
+    /* make the switches side by side */
+    .switches {
+        width: 180px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    #autoModeSwitch {
+        float: left;
+    }
+
+    #ttsSwitch {
+        float: right;
+    }
+
+    /*
+        everything after is just for the switch, I used some code from here https://www.w3schools.com/howto/howto_css_switch.asp
+    */
+
+    /* the switch looking part of the switch */
+    .switch {
+        margin: auto;
+        position: relative;
+        display: block;
+        width: 60px;
+        height: 30px;
+    }
+
+    /* the actual checkbox part of the switch, this sets it to invisible */
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    /* the sliding portion, and this is its default, off state */
+    .switch-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #cacaca;
+        -webkit-transition: .5s;
+        transition: .5s;
+        border-radius: 30px;
+    }
+
+    /* switch handle */
+    .switch-slider:before {
+        position: absolute;
+        content: "";
+        height: 24px;
+        width: 24px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        -webkit-transition: .5s;
+        transition: .5s;
+        border-radius: 50%;
+    }
+
+    /* for when the switch is checked */
+    input:checked+.switch-slider {
+        background-color: #3d95dd;
+    }
+
+    /* move the handle */
+    input:checked+.switch-slider:before {
+        -webkit-transform: translateX(29px);
+        -ms-transform: translateX(29px);
+        transform: translateX(29px);
+    }
+
+  </style>
+</head>
+
+
+<body>
+  <!-- div for the entire calculator -->
+  <div id="calculator">
+    <br>
+    <h1>Tank game distance calculator</h1>
+    <h3>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspAuto Mode&nbsp&nbsp|&nbsp&nbspSpeak Results</h3>
+    <div class="switches">
+      <!-- toggle switch for auto mode -->
+      <label class="switch" id="autoModeSwitch" name="switch">
+        <!-- its a fancy checkbox -->
+        <input type="checkbox" id="switch" onchange="switchHandler()">
+        <span class="switch-slider"></span>
+      </label>
+
+      <!-- toggle switch for spoken messages-->
+      <label class="switch" id="ttsSwitch" name="ttsSwitch">
+        <!-- its a fancy checkbox -->
+        <input type="checkbox" id="tts-switch" onchange="ttsSwitchHandler()">
+        <span class="switch-slider"></span>
+      </label>
+    </div>
+    <br>
+    <br>
+    <!-- the canvas for the viewport/click ui -->
+    <canvas id="minimap-preview"></canvas>
+    <br>
+    <p>Align the minimap to the window above (if using auto mode)</p>
+    <!-- offset/scale adjust sliders -->
+    <div class="sliders-div"> 
+      <!-- with labels -->
+      <label for="scale">Scale</label>
+      <input type="range" class="slider" id="scale" name="scale">
+      <br>
+      <label for="xval">X Offset</label>
+      <input type="range" class="slider" id="xval" name="xval">
+      <br>
+      <label for="yval">Y Offset</label>
+      <input type="range" class="slider" id="yval" name="yval">
+    </div>
+    <br>
+    <!-- minimap info inputs -->
+    <div class="text-inputs-div">
+      <label for="num-gridsquares">Number of grid squares</label>
+      <input type="text" class="text-input" id="num-gridsquares" name="num-gridsquares" onchange="textInputHandler()" value="10">
+      <br>
+      <label for="size-gridsquares">Distance per grid square</label>
+      <input type="text" class="text-input" id="size-gridsquares" name="size-gridsquares" onchange="textInputHandler()" value="235">
+      <!-- this will turn into a warning if the inputs are not numbers -->
+      <p id="bad-input"></p>
+    </div>
+    <!-- output text -->
+    <h1 id="result"></h1>
+    <br>
+    <!-- end of the calculator div -->
+  </div>
+  <!-- OpenCV JS -->
+  <script src="opencv.js"></script>
+  <script>
+    /*
+		References: 
+		https://codepedia.info/detect-browser-in-javascript
+		https://github.com/opencv/opencv, but more specifically opencv.js https://docs.opencv.org/4.x/d5/d10/tutorial_js_root.html
+		https://www.w3schools.com/howto/howto_css_switch.asp
+	*/
+
+	// Constants - used for configuration
+
+	const WINDOW_WIDTH = window.innerWidth;
+	const WINDOW_HEIGHT = window.innerHeight;
+	const SLIDER_MIN = -600;
+	const SLIDER_MAX = 600;
+	const VIEWPORT_SIZE = 430;
+
+	// slider elements
+	const x_slider = document.getElementById("xval");
+	const y_slider = document.getElementById("yval");
+	const scale_slider = document.getElementById("scale");
+
+	// configuring sliders
+	x_slider.min = SLIDER_MIN;
+	y_slider.min = SLIDER_MIN;
+	scale_slider.min = SLIDER_MIN;
+	x_slider.max = SLIDER_MAX;
+	y_slider.max = SLIDER_MAX;
+	scale_slider.max = SLIDER_MAX;
+	x_slider.value = 0;
+	y_slider.value = 0;
+	scale_slider.value = 0;
+
+	// declaring global variables
+	let num_gridsquares;
+	let size_gridsquares;
+	let WARTHUNDER_WIDTH = 1920;
+	let WARTHUNDER_HEIGHT = 1080;
+	const canvas = document.getElementById("minimap-preview");
+	const context = canvas.getContext("2d");
+	let x1; // click or player/marker locations
+	let y1;
+	let x2;
+	let y2;
+	let manualClickState = 0;
+	let screenShare = false;
+	let ttsEnabled = false;
+
+	// these are for "locking" the player's pos - basically, only look in the region near where the player was, instead of looking everywhere and being suceptible to interference
+	let previous_player_pos = new cv.Point(0, 0);
+	let player_lock = false;
+
+	// configure canvas
+	canvas.width = VIEWPORT_SIZE;
+	canvas.height = VIEWPORT_SIZE; 
+	// run the text input handler so that it puts the appropriate text onto the output
+	textInputHandler();
+	// this is for "manual mode"
+	document.addEventListener("click", mouseClickHandler);
+
+	// parses the text in the two text fields as numbers and writes them to the global variables, called primarily by the HTML elements
+	function textInputHandler() {
+		num_gridsquares = Number(document.getElementById("num-gridsquares").value);
+		size_gridsquares = Number(document.getElementById("size-gridsquares").value);
+		// write a warning if the inputs are invalid
+		if (isNaN(num_gridsquares) || isNaN(size_gridsquares))
+			document.getElementById("bad-input").innerHTML = "Please enter valid numbers";
+		else
+			document.getElementById("bad-input").innerHTML = "";
+	}
+
+	// on/off switch for the screen share / "auto mode", called by the HTML element
+	function switchHandler() {
+		let state = document.getElementById("switch").checked;
+		if (state) {
+			// init the screen share if the switch is turned on
+			initScreenShare();
+		}
+		else {
+			// stop the stream if its running and the switch is turned off
+			if (screenShare) {
+				stopScreenShare();
+			}
+		}
+	}
+
+	function ttsSwitchHandler() {
+		let state = document.getElementById("tts-switch").checked;
+		if (state) {
+			speechSynthesis.speak(new SpeechSynthesisUtterance("Speak results enabled."));
+		}
+		ttsEnabled = state;
+	}
+
+	// draw the screen share into the viewport
+	function drawSized(image) {
+		context.clearRect(0, 0, VIEWPORT_SIZE, VIEWPORT_SIZE)
+		context.drawImage(image, 0, 0, VIEWPORT_SIZE, VIEWPORT_SIZE);
+	}
+
+	// calculate the in-game distance based on pixel coordinates, and the dimensions of the in-game minimap
+	function getRange(x1, y1, x2, y2, n_grids, grid_square_size, grid_pixels) {
+		// convert to the correct units
+		const total_meters = grid_square_size * n_grids; // the units cancel so it doesn't need to be meters
+		const dx = ((x2 - x1) / grid_pixels) * total_meters;
+		const dy = ((y2 - y1) / grid_pixels) * total_meters;
+		// pythagoras
+		return Math.sqrt(dx * dx + dy * dy);
+	}
+
+	// masks everything on the image except a radius from a point
+	function maskCircle(image, point, radius) {
+		const mask = new cv.Mat(image.rows, image.cols, image.type(), [0, 0, 0, 255]);
+		const mask_colour = new cv.Scalar(255, 255, 255, 255);
+		cv.circle(mask, point, radius, mask_colour, -1, cv.FILLED, 0);
+		cv.bitwise_and(image, mask, image);
+		mask.delete();
+		return image;
+	}
+
+	// uses OpenCV to interpret the screen, and then edit the global variables appropriately. Also return the preview screen
+	// with the circles drawn
+	function processImage(bitmap) {
+		// IMAGE PROCESSING 
+		// bitmap --> canvas + extracted image data
+
+		// (this took a lot more effort than pretty much all the other functions)
+
+		// convert the bitmap to a format that opencv can parse
+		const dummyElement = document.createElement("canvas");
+		const dummyContext = dummyElement.getContext("2d");
+		// set width appropriately
+		dummyElement.width = bitmap.width;
+		dummyElement.height = bitmap.height;
+		dummyContext.drawImage(bitmap, 0, 0);
+		// make three copies of the frame
+		let image0 = cv.imread(dummyElement);
+		let image1 = cv.imread(dummyElement);
+		let background = cv.imread(dummyElement);
+		// arguments for the dilate function
+		const M = new cv.Mat.ones(0, 0, cv.CV_8U);
+		const anchor = new cv.Point(-1, -1);
+
+		// FIND LOCATION OF MARKER POINT
+		// thresholds the pixel colours, point_lo <= [R, G, B, A] <= point_hi
+		const point_lo = new cv.Mat(image1.rows, image1.cols, image1.type(), [200, 200, 0, 0]);
+		const point_hi = new cv.Mat(image1.rows, image1.cols, image1.type(), [255, 255, 50, 255]);
+		cv.inRange(image1, point_lo, point_hi, image1);
+		// dilate the parts that did match the criteria, aka "expand" their edges
+		cv.dilate(image1, image1, M, anchor, 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
+		// find the "brightest" point
+		let point_result = cv.minMaxLoc(image1).maxLoc;
+		// the identified coordinate is consistently bit low, so just move it up a little bit
+		point_result.y += 7; 
+
+		// FIND LOCATION OF PLAYER
+		// exact same thing as before, but the colour criteria are different
+		const player_lo = new cv.Mat(image0.rows, image0.cols, image0.type(), [231, 199, 121, 0]);
+		const player_hi = new cv.Mat(image0.rows, image0.cols, image0.type(), [255, 255, 170, 255]);
+		cv.inRange(image0, player_lo, player_hi, image0);
+		cv.dilate(image0, image0, M, anchor, 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
+		// mask out the other areas outside the lock radius, only required for the player. The colour value for the marker is distinct enough that it is pretty robust. Also, it wouldn't help since that marker can move all over the place.
+		if (player_lock) // only mask if the lock is valid, or else if it starts locked to a fluke value then its gonna be stuck there
+			maskCircle(image0, previous_player_pos, 30);
+		// find brightest spot
+		let player_result = cv.minMaxLoc(image0).maxLoc;
+
+		// don't need to move the player location
+		// colours for the circles
+		const point_colour = new cv.Scalar(0, 255, 255, 255);
+		const player_colour = new cv.Scalar(0, 255, 0, 255);
+
+		// make sure that there are actually detected pixels before drawing the circles
+		if (cv.countNonZero(image1) > 60) {
+			// draw the circle overlayed on the original image
+			cv.circle(background, point_result, 20, point_colour, 2, cv.LINE_8, 0);
+			x1 = point_result.x;
+			y1 = point_result.y;
+		}
+		else {
+			x1 = NaN; // NaN is used as an identifier for the point being invalid
+			y1 = NaN;
+		}
+		// same for the player point
+		if (cv.countNonZero(image0) > 1) {
+			cv.circle(background, player_result, 20, player_colour, 2, cv.LINE_8, 0);
+			x2 = player_result.x;
+			y2 = player_result.y;
+			previous_player_pos.x = x2;
+			previous_player_pos.y = y2;
+			player_lock = true;
+		}
+		else {
+			x2 = NaN;
+			y2 = NaN;
+			player_lock = false; // break the lock
+		}
+		// reuse dummyElement to output. Write the original + circles overlayed to dummyElement, then return that as the output.
+		cv.imshow(dummyElement, background);
+		// for some reason these cv matrices will cause memory leaks, so delete them.
+		point_lo.delete();
+		point_hi.delete();
+		player_lo.delete();
+		player_hi.delete();
+		background.delete();
+		image0.delete();
+		image1.delete();
+		M.delete();
+
+		// return the graphical output
+		return dummyElement;
+	}
+
+	function findMiniMap(bitmap) {
+		const dummyElement = document.createElement("canvas");
+		const dummyContext = dummyElement.getContext("2d");
+		const M = new cv.Mat.ones(0, 0, cv.CV_8U);
+		const anchor = new cv.Point(-1, -1);
+		// set width appropriately
+		dummyElement.width = bitmap.width;
+		dummyElement.height = bitmap.height;
+		dummyContext.drawImage(bitmap, 0, 0);
+		// make three copies of the frame
+		let img = cv.imread(dummyElement);
+		// make BW
+		cv.cvtColor(img, img, cv.COLOR_RGBA2GRAY);
+		// blur 
+		cv.GaussianBlur(img, img, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
+
+		// apply adaptive threshold
+		cv.adaptiveThreshold(
+			img,                      // Input image
+			img,               // Output image
+			255,                        // Max value (white)
+			cv.ADAPTIVE_THRESH_GAUSSIAN_C, // Adaptive method (Gaussian)
+			cv.THRESH_BINARY,          // Threshold type (Binary)
+			11,                         // Block size (size of the neighborhood for adaptive thresholding)
+			2                          // Constant subtracted from the mean (tuned parameter)
+		);
+		// dilate (but its inverted so its erode)
+		cv.erode(img, img, M, anchor, 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
+		// find canny edges
+
+		
+		let edges = new cv.Mat();
+      cv.Canny(img, edges, 70, 130, 3, false);
+
+      // Create horizontal and vertical structuring elements (kernels)
+      let kernel_horizontal = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(1, 8));
+      let kernel_vertical = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(8, 1));
+      // Apply morphological operations to keep only vertical and horizontal lines
+      let horizontal_lines = new cv.Mat();
+      let vertical_lines = new cv.Mat();
+      cv.morphologyEx(edges, horizontal_lines, cv.MORPH_OPEN, kernel_horizontal);
+      cv.morphologyEx(edges, vertical_lines, cv.MORPH_OPEN, kernel_vertical);
+      // Combine horizontal and vertical lines
+      let lines = new cv.Mat();
+      cv.addWeighted(horizontal_lines, 1, vertical_lines, 1, 0, lines);
+		//cv.imshow(dummyElement, lines);
+
+		// invert the lines
+		let scalarMatrix = new cv.Mat(lines.rows, lines.cols, lines.type(), new cv.Scalar(255));
+		cv.subtract()
+		cv.subtractScalar(img, new cv.Scalar(255), img);
+
+		// add the processed into the original
+
+		cv.addWeighted(img, 1, lines, 1, 0, img);
+
+		cv.imshow(dummyElement, img);
+
+
+		img.delete();
+		edges.delete();
+		lines.delete();
+		horizontal_lines.delete();
+		vertical_lines.delete();
+		kernel_horizontal.delete();
+		kernel_vertical.delete();
+		M.delete();
+		return dummyElement;
+	}
+
+	var stream;
+	var videoElement;
+	async function initScreenShare() {
+		try {
+			const displayMediaOptions = {
+				video: {
+					mediaSource: 'screen',
+				},
+				audio: {
+					suppressLocalAudioPlayback: false,
+				},
+				preferCurrentTab: false,
+				selfBrowserSurface: "exclude",
+				systemAudio: "include",
+				surfaceSwitching: "include",
+				monitorTypeSurfaces: "include",
+			};
+			stream = await navigator.mediaDevices.getDisplayMedia();
+			videoElement = document.createElement('video');
+			videoElement.srcObject = stream;
+			const canvas = document.createElement('canvas');
+			canvas.style.display = "none";
+			const context = canvas.getContext('2d');
+			videoElement.addEventListener('loadedmetadata', () => {
+				canvas.width = videoElement.videoWidth;
+				canvas.height = videoElement.videoHeight;
+			});
+			videoElement.addEventListener('play', () => {
+				let lastFrameTime = performance.now();
+				var dataURL = canvas.toDataURL('image/png');
+				var img = new Image();
+				function drawFrame() {
+					const currentTime = performance.now();
+					const elapsedMilliseconds = currentTime - lastFrameTime;
+					if (elapsedMilliseconds >= 100) {
+						if (videoElement.paused || videoElement.ended) {
+							return;
+						}
+						context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+						
+						img.src = dataURL;
+						createImageBitmap(canvas).then(function (imageBitmap) {
+							updateGameInfo(imageBitmap);
+						}).catch(function (error) {
+							console.error('Error creating ImageBitmap:', error);
+						});
+						lastFrameTime = currentTime;
+					}
+					setTimeout(drawFrame, 100);
+				}
+				drawFrame();
+			});
+			videoElement.play();
+			screenShare = true;
+			videoElement.addEventListener('ended', stopScreenShare);
+		} catch (error) {
+			console.error('Error accessing screen:', error);
+			screenShare = false;
+			document.getElementById("switch").checked = false;
+		}
+    }
+
+	function stopScreenShare() {
+		if (stream) {
+			const tracks = stream.getTracks();
+			tracks.forEach(track => track.stop());
+			videoElement.pause();
+		}
+		document.getElementById("switch").checked = false;
+		screenShare = false;
+	}
+
+	// retrieve info from the screen share, parse the data, and display the output
+	async function updateGameInfo(bitmap) {
+		// check if the stream is working
+		//if (!(image.track.readyState != 'live' || !image.track.enabled || image.track.muted) || videoReady) {
+		if (screenShare || true) {
+			console.log("updategameinfo running");
+			// get a frame
+			//const bitmap = await image.grabFrame();
+			//const bitmap = globalThis.imageBitmap;
+			// set the warthunder dimensions to the frame's dimensions
+			WARTHUNDER_HEIGHT = bitmap.height;
+			WARTHUNDER_WIDTH = bitmap.width;
+			// get the slider values
+			let xval = parseInt(x_slider.value);
+			let yval = parseInt(y_slider.value);
+			let scale = parseInt(scale_slider.value);
+			// default offset/size values
+			let xDefaultOffset = WARTHUNDER_WIDTH * 3 / 4 + 35;
+			let yDefaultOffset = WARTHUNDER_HEIGHT / 2 + 95;
+			let defaultSize = WARTHUNDER_WIDTH / 4 - 50;
+			// prevent the sliders, at default scale, from going off the screen
+			//x_slider.max = WARTHUNDER_WIDTH - (xDefaultOffset + defaultSize);
+			//y_slider.max = WARTHUNDER_HEIGHT - (yDefaultOffset + defaultSize);
+			// crop the frame according to the default values + slider values
+			let cropped = await createImageBitmap(bitmap, 
+				xDefaultOffset + xval, 
+				yDefaultOffset + yval, 
+				defaultSize + scale,
+				defaultSize + scale
+			);
+			// process the cropped image, and draw the return value onto the canvas
+			//drawSized(processImage(cropped));
+			drawSized(findMiniMap(cropped));
+			//processImage(cropped);
+			// this is for converting the pixel size in the getRange function
+			globalThis.warthunder_window_size = defaultSize + scale;
+		}
+	}
+
+	// these two functions are just so that I do not redeclare code that does the same thing, potentially leading to inconsistencies
+	function displayResult(distance) {
+		document.getElementById("result").innerHTML = `Distance: ${Math.round(distance)}`;
+	}
+
+	function displayNaN() {
+		document.getElementById("result").innerHTML = `Distance: Insufficient information`;
+	}
+
+	let ttsTimeoutOK = true;
+	// TTS the result if enabled
+	function speakResults(range) {
+		if (ttsEnabled && ttsTimeoutOK) {
+			speechSynthesis.speak(new SpeechSynthesisUtterance((Math.round(range / 10) * 10).toString()));
+			ttsTimeoutOK = false;
+			setTimeout(resetTTSTimeout, 2000);
+		}   
+	}
+
+	function resetTTSTimeout() {
+		ttsTimeoutOK = true;
+	}
+
+	// previous result state
+	let previous_result_valid = false;
+	let previous_range = 0;
+
+	// for displaying the result using auto mode
+	function displayAutoResult() {
+		// if the required values are all valid, calculate and display the value
+		if (!(isNaN(x2) || isNaN(x1) || isNaN(y2) || isNaN(y1) || (typeof warthunder_window_size == 'undefined'))) {
+			let range = getRange(x1, y1, x2, y2, num_gridsquares, size_gridsquares, warthunder_window_size);
+			displayResult(range);
+			if ((!previous_result_valid) || (Math.abs(range - previous_range) > 50)) {
+				speakResults(range);
+				previous_result_valid = true;
+				previous_range = range;
+			}
+			return true;
+		}
+		else
+			displayNaN();
+		previous_result_valid = false;
+		return false;
+	}
+
+	// for displaying the result using manual mode
+	function displayManualResult() {
+		// clear the screen
+		context.clearRect(0, 0, VIEWPORT_SIZE, VIEWPORT_SIZE);
+		// draw the grid lines if the required values are valid
+		if (!isNaN(num_gridsquares)) {
+			for (var i = 0; i < VIEWPORT_SIZE; i += VIEWPORT_SIZE / num_gridsquares) {
+				context.beginPath();
+				context.moveTo(i, 0);
+				context.lineTo(i, VIEWPORT_SIZE);
+				context.stroke();
+				context.beginPath();
+				context.moveTo(0, i);
+				context.lineTo(VIEWPORT_SIZE, i);
+				context.stroke();
+			}
+		}
+		// draw the dots for the click points
+		if (!(isNaN(x1) || isNaN(y1))) context.fillRect(x1 - 4, y1 - 4, 8, 8);
+		if (!(isNaN(x2) || isNaN(y2))) context.fillRect(x2 - 4, y2 - 4, 8, 8);
+		// if all the values are valid, calculate and display the result
+		if (!(isNaN(x2) || isNaN(x1) || isNaN(y2) || isNaN(y1) || isNaN(size_gridsquares) || isNaN(num_gridsquares)))
+			displayResult(getRange(x1, y1, x2, y2, num_gridsquares, size_gridsquares, VIEWPORT_SIZE));
+		else 
+			displayNaN();
+	}
+
+	// used for the manual mode
+	function mouseClickHandler(e) {
+		// get click coordinates and compensate for the canvas bounding box
+		const canvas_box = canvas.getBoundingClientRect();
+		const x = e.clientX - canvas_box.left;
+		const y = e.clientY - canvas_box.top;
+		// make sure auto mode is off, and the click is in the canvas
+		if (screenShare || x < 0 || y < 0 || x > VIEWPORT_SIZE || y > VIEWPORT_SIZE)
+			return;
+		if (manualClickState) {
+			x1 = x;
+			y1 = y;
+		}
+		else {
+			x2 = x;
+			y2 = y;
+		}
+		// toggle manualClickState
+		manualClickState = 1 - manualClickState;
+	}
+
+	// loops continuously, approx. every 100ms
+	function loop() {
+		if (screenShare) {
+			// if auto mode on, do auto mode things
+			//updateGameInfo();
+			displayAutoResult();
+		}
+		else {
+			displayManualResult();
+		}
+		setTimeout(loop, 100);
+	}
+
+	// start the loop
+	loop();
+
+
+  </script>
+</body>
+
+</html>
