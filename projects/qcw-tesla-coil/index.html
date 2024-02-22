@@ -9,6 +9,14 @@
             Summer 2023 (Not quite finished)
         </p>
         <p>
+            Before starting, I should say that all my knowledge is based on reading stuff from the internet, and some high school 
+            physics. Thus, there are probably inaccuracies in this article, and don't expect anything in particular to be correct.
+            Also, the final results for this coil are very dissappointing, simply because I ran out of time before I could test it 
+            with the proper capacitor to supply it with power, and thus the arcs I achieved were pathetically small. I do intend to 
+            work on it again after I have time though.
+        </p>
+        <img src="spark.png" alt="tesla coil with sparks">
+        <p>
             The QCW tesla coil is a further development of the DRSSTC (dual resonant solid state tesla coil). Visually,
             it usually has a shorter and wider secondary coil compared to a regular SSTC or DRSSTC. They also typically 
             make straighter and longer arcs than DRSSTCs. Some QCW coils are known to make sparks over ten times the length 
@@ -46,7 +54,8 @@
         </p>
         <img src="regular-shift.gif" alt="desmos graph of the phase shifted waveforms">
         <p>
-            In this case, the middle line is the one being phase shifted. This half of the H bridge will be "hard switching", and 
+            In this case, the middle line is the one being phase shifted. This half of the H bridge will be "hard switching" (switching 
+            not during a current zero crossing), and 
             will heat up much more. This can be a problem, and one method to solve this is to alternate the side that gets phase 
             shifted. In some drivers such as the <a href="https://tqfp.org/simple-tesla/simpledriver-v23-in-english.html#!prettyPhoto" 
             target="_blank">Simpledriver 2.3</a>, the side which gets phase shifted can be set to alternate between every long pulse,
@@ -187,13 +196,230 @@ PINLOW:
         pio_sm_init(pio, sm, offset + PhaseSwapLag_offset_HARDSWAP, &cfg);
         pio_sm_set_enabled(pio, sm, true);
     }
-%}
-        </p>
+%}</p>
         <p>
             The phase lag program does use quite a few clock cycles each time it counts, so to have a decent resolution, the clock 
             speed should be pretty high. This is fine though, since the RP2040 can be easily overclocked to around 420 MHz.
         </p>
+        <h4>
+            The driver
+        </h4>
+        <p>
+            I scratched together a circuit, with some features taken from the Simpledriver, such as the output stage and some of the 
+            protection features. The main difference between mine and the SD was that (as mentioned before), mine did not use any analog
+            components for the phase shifting.
+        </p>
+        <img src="qcw2-schematic.png" alt="circuit schematic of the tesla coil driver">
+        <p>
+            This is the schematic I ended up using. This was the first attempt that I had actually built, and it has a few different 
+            issues. Heres the long list of problems I ended up having.
+        </p>
+        <ul>
+            <li>The RP2040 refused to boot. This ended up being caused by a few different issues, the first being the 
+                crystal. If you ever design a board with the RP2040, <b>do not use a 100Ω crystal!!!!!!</b>. This probably wasted almost a week 
+                of my life, since it would refuse to oscillate with the recommended resistors and loading capacitors. Make sure you use a 50Ω crystal 
+                and just avoid the headache!
+            </li>            
+            <li>Poor soldering of the QFN-56 package of the RP2040.
+                I don't really know why I even tried to reflow the thing myself in a walmart toaster oven, but I think I didn't leave the 
+                oven on for long enough, and a bunch of the QFN pads were not connected properly. This resulted in me needing to fix numerous 
+                problems on the board, so I guess the lesson here is, don't try to reflow QFN parts unless you're confident that you can do it 
+                properly. 
+            </li>
+            <li>The output stage did not have any dead time, so the MOSFETS tended to heat up extremely quickly 
+                when switching. A few seconds of switching was enough for the MOSFETS to become too hot to touch. This was not a huge deal 
+                though, since the tesla coil operates in pulses less than 30ms long. 
+            </li>
+            <li>
+                The output stage did not damp oscillations between the DC blocking capacitors enough, which actually ended up killing 
+                two of my IGBTs. Although this might be more of a GDT leakage inductance issue. 
+            </li>
+            <li>The MCP6561 comparators come in different variants, some of which are the same package. I thought that the letters on the 
+                end were not important, but it turns out that the different variants have different pinouts, so I had to replace some of 
+                these ICs on my board. 
+            </li>
+            <li>
+                The UVLO feature never really worked, since it would falsely trigger whenever the output MOSFETS switched. It still 
+                didn't really work after changing the firmware, adding decoupling capacitors on top of the comparator, etc.
+            </li>
+            <li>
+                This is not necessarily a problem, but I am not confident that the phase lead really worked. This is partly because 
+                I did not have enough time to thoroughly test it, but I guess it is something to note.
+            </li>
+        </ul>
+        <p>
+            After these problems were addressed though, the board seemed to work fine. 
+        </p>
+        <p>
+            Heres the unpopulated PCB.
+        </p>
+        <img src="qcw2-pcb.jpg" alt="unpopulated circuit board of tesla coil driver">
+        <p>
+            And the assembled driver, in a foil lined 3D printed case.
+        </p>
+        <img src="qcw2-assembled.jpg" alt="assembled tesla coil driver">
+        <p>
+            I used my <a href="/projects/optical-sensor/">diy knockoff version</a> of the IFD-95T fiber optic receiver. It is quite a 
+            bit cheaper than the real one.
+        </p>
+        <h4>
+            The coils
+        </h4>
+        <p>
+            Before actually doing anything in real life, I ran a quick simulation of the coil in a program called <a 
+            href="http://classictesla.com/java/javatc/javatc.html" target="_blank">JavaTC</a>. This helps 
+            to ensure that the geometry of the coil actually makes sense, and although the simulation is going to be quite inaccurate,
+            it helps to ensure that the coil at least has a chance of working right. 
+        </p>
+        <img src="javatc-screenshot.png" alt="screenshot of a simulation (JavaTC)">
+        <h4>
+            The secondary coil 
+        </h4>
+        <p>
+            I first started by cutting a 6" length of 3.5" O.D. ABS drain pipe. I then 3D printed some adapters, and hot glued together 
+            a little rig to help wind the coil. I used a stepper motor connected to a driver and microcontroller with a potentiometer, 
+            all just plugged into a breadboard. 
+        </p>
+        <img src="coil-winding-thing.jpg" alt="coil winding rig thing">
+        <p>
+            Winding the coil was relatively quick using the motorized winding thing. I used 32 AWG wire for this. 
+            (Don't mind the messy desk).
+        </p>
+        <img src="partly-wound.jpg" alt="partly wound secondary coil on the winding rig">
+        <p>
+            After the coil was wound, I used some epoxy resin to encapsulate the entire coil. I just brushed it onto the coil, and left 
+            it to spin overnight. After that, it was solid enough not to move around on its own, so I just left it in the garage for a 
+            few days to fully cure. 
+        </p>
+        <img src="epoxy-coated.jpg" alt="fully wound secondary coil, with epoxy coating on the winding rig">
+        <p>
+            Lastly, I 3D printed some end caps, and epoxied them on. For the bottom side, I soldered some thicker wire, and encased the 
+            joint in epoxy as I glued the rim on. For the top, I made an rhombus-like configuration of bare wire strands, to hopefully 
+            interface with the topload. The top cap also has a nylon bolt glued into it to allow the topload to simply screw on. 
+        </p>
+        <img src="finished-secondary.jpg" alt="completed secondary coil">
+        <h4>
+            The primary coil
+        </h4>
+        <p>
+            This was relatively simple, I just 3D printed a frame to wind it on, and I just wound 14 turns of 14 AWG wire around it.
+        </p>
+        <img src="primary-frame.jpg" alt="primary coil frame">
+        <h4>
+            The topload
+        </h4>
+        <p>
+            The topload essentially helps increase the parasitic capacitance between the top of the secondary coil and the ground, lowering 
+            the resonant frequency. In addition, the sparks themselves can cause the resonant frequency to change, since 
+            they are essentially an extension of the topload. Having a larger topload helps reduce this effect. In my case, the topload 
+            was just a length of aluminum ducting pipe, bent into a circle, and taped together with foil tape. There are also some 3D
+            printed circle pieces that screw together to clamp around the toroid, which also contains a nylon nut to screw onto the 
+            secondary coil. These 3D printed pieces were then covered in foil tape to make their surfaces conductive. 
+        </p>
+        <img src="topload.jpg" alt="the topload">
+        <h4>
+            Resonant capacitor bank 
+        </h4>
+        <p>
+            Since this is a QCW DRSSTC, it needs a primary capacitor. This should be able to handle a lot of current and voltage, so 
+            having just one capacitor would require a very expensive capacitor. A simpler method is to just use a bunch of smaller ones. 
+            I ended up using a 10 series, 2 parallel bank of KEMET R76 39nF 2kVDC film capacitors. The result is a 7.8nF, 7kVAC MMC.
+        </p>
+        <img src="capacitor-bank-board.jpg" alt="plastic board with printout of board design">
+        <p>
+            I made the board by cutting out the design from a sheet of recycled milk jugs. (You can bake milk jugs in the oven, and 
+            press the plastic blob into a sheet).
+        </p>
+        <h4>
+            H bridge assembly 
+        </h4>
+        <p>
+            I designed a small PCB for streamlining the build process of the inverter. (The PCBs are cheap from China, but the 
+            shipping is expensive... so ordering two or three different boards is basically the same price as ordering one).
+            The board is kind of "inspired" by <a href="https://www.loneoceans.com/labs/sales/easybridge/" target="_blank">
+            Loneoceans' EasyBridge</a>... (its basically a knockoff of it). 
+        </p>
+        <img src="inverter.jpg" alt="the inverter assembly">
+        <p>
+            Heres me pointing to the two IGBTs that died due to the GDT leakage inductance and poor output stage damping... 
+            (I only installed four IGBTs, although there can be four more for a double-full-bridge).
+        </p>
+        <p>
+            A "bandaid" solution is to add bidirectional TVS diodes across the gate and emitter of each IGBT.
+        </p>
+        <h4>
+            The assembled QCW 
+        </h4>
+        <img src="assembled-coil.jpg" alt="assembled tesla coil">
+        <p>
+            In addition to the items mentioned above, I also have a small cascaded feedback current transformer, and 
+            small board which has a voltage doubler rectifier and some decoupling capacitors. (Those are way too small though).
+        </p>
+        <p>
+            The driver is powered by a 95W HP laptop power supply that I got for cheap at a thrift store. 
+        </p>
+        <h4>
+            Drive modes
+        </h4>
+        <p>
+            The Loneoceans website has a lot of <a href="https://www.loneoceans.com/labs/qcw15/#Design" target="_blank">very 
+            useful resources</a> for this. Essentially, he concludes that it is optimal for the secondary resonant frequency to be 
+            initially greater than that of the primary, but operate the coil at the upper pole frequency. 
+        </p>
+        <p>
+            This is something that I don't really understand, but if you have two resonant LC circuits, with the inductors 
+            partly coupled, the system will have two resonant frequencies that are different from the individual ones. With regular 
+            DRSSTCs, the coupling is quite low so the two resonant poles are relatively similar to the individual ones, but with a 
+            QCW, the coupling is much higher, and the pole frequencies are very different from the individuals. 
+        </p>
+        <img src="ltspice-frequency-splitting.png" alt="screenshot of ltspice simulation">
+        <p>
+            This can be seen in the simulation here. The blue trace is the current in the secondary coil of the combined system, 
+            and the other two traces are the individual currents.
+        </p>
+        <p>
+            Loneoceans mentions that his coil will "default" to the lower pole when the primary frequency is lower than the secondary, 
+            but in my experience, there is a way around this. 
+        </p>
+        <p>
+            If the oscillations are initially started by exciting the primary circuit at a certain pole frequency, when you ramp up the 
+            power, it will continue oscillating at the same frequency. This means that for my driver, I can set a gpio to toggle 
+            at the upper pole frequency, feed that into the power inverter while setting the phase shift to 10-20% power. This will 
+            cause the coil to oscillate at the upper pole (and without the need for ZCS), and after that, the gpio toggling can be turned off,
+            and the power can be ramped to 100% for the classical "QCW" spark.
+        </p>
+        <h4>
+            Audio modulation
+        </h4>
+        <p>
+            In <a href="https://youtu.be/PQ9mhbj66gk" target="_blank">many videos of QCW coils on the internet</a>, they can be heard
+            playing different notes. After asking around on some forums, I have concluded that this can be done by basically superimposing 
+            an audio waveform on top of the power ramp. 
+        </p>
+        <img src="audio-modulation.jpg" alt="oscilloscope waveforms of the ramp">
+        <h4>
+            First tests
+        </h4>
+        <p>
+            Here is with audio modulation, and a light bulb as a series resistor to limit current in case something shorts.
+        </p>
+        <div class="youtube-embed">
+            <iframe width="324" height="575" src="https://www.youtube.com/embed/ANYlWCZXqUM" title="" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <p>
+            And here is the same conditions but without the light bulb.
+        </p>
+        <div class="youtube-embed">
+            <iframe width="324" height="575" src="https://www.youtube.com/embed/eLXXU6iMCxc" title="" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <p>
+            The real shame here is that I ran out of time for testing it before I acquired a large bulk capacitor, so the arcs are 
+            really small. I do intend to keep testing it once I have more free time though. 
+        </p>
+        <!-- https://www.loneoceans.com/labs/qcw15/#Design -->
         <!--https://www.desmos.com/calculator/qwpgwqgch3-->
+        <!-- <img src="" alt=""> -->
+        <!-- <a href="link" target="_blank">text</a> -->
     </div>
     <script src="/page_template.js"></script>
 </body>
