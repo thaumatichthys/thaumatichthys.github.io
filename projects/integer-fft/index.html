@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <div hidden id="page-title">
+        Integer FFT
+    </div>
+    <div hidden id="page-content">
+        <p>
+            March 10, 2024
+        </p>
+        <p>
+            The Fast Fourier Transform is an algorithm for converting time domain signals into frequency domain. It has many applications in 
+            signal processing, etc.
+        </p>
+        <p>
+            The FFT is an improvement of the DFT, which does the same thing but with a quadratic increase in compute time as the input size 
+            increases. The FFT is closer to n*log2(n).
+        </p>
+        <p>
+            On embedded devices, floating point number can be slow to compute, and integer arithmetic is preferred.
+        </p>
+        <p>
+            Here is an int16 based FFT in C, note that I don't particularly think this is that great of a program, but I guess I am going to
+            put it here anyway.
+        </p>
+        <p class="codebox">bool int_fft2(int16_t real[], int16_t imag[], uint16_t N) {
+    // Integer based decimation-in-time FFT
+    // ensure size is a power of two, also find power
+    const uint8_t input_bits = 16;
+    int16_t temp;
+    uint8_t power = input_bits;
+    for (uint16_t i = 0; i < input_bits; i++) {
+        uint16_t shifted = (N << i) & 0xFFFF;
+        if (shifted > (1 << (input_bits - 1)))
+            return false; // size isnt power of 2 
+        if (shifted == 0) {
+            power = input_bits - i;
+            break;
+        }
+    }
+    // reverse indices
+    for (uint16_t i = 0; i < N; i++) {
+        // find reversed index
+        uint16_t reversed_i = 0;
+        for (uint8_t bit = 0; bit < power; bit++) {
+            bool set = ((1 << bit) & i) > 0;
+            if (set)
+                reversed_i |= (1 << (power - 1)) >> bit;
+        }
+        if (reversed_i > i) {
+            // swap values
+            int16_t temp = real[i];
+            real[i] = real[reversed_i];
+            real[reversed_i] = temp;
+            temp = imag[i];
+            imag[i] = imag[reversed_i];
+            imag[reversed_i] = temp;
+        }
+    }
+    // do fft stuffs
+    const uint8_t base_mag_log2 = 14;
+    const int16_t base_mag = (uint16_t)1 << base_mag_log2;
+    int16_t cos_angle_increment = -base_mag;
+    int16_t sin_angle_increment = 0;
+    for (uint16_t stage = 0; stage < power; stage++) {
+        uint16_t dft_width = 2 << stage;
+        uint16_t n_dfts = N / dft_width;
+        int16_t twiddle_real = base_mag;
+        int16_t twiddle_imag = 0;
+        // compute all the dfts of one stage in "parallel"
+        for (uint16_t i = 0; i < (dft_width >> 1); i++) {
+            // i is the input index inside the dft
+            for (uint16_t dft_index = 0; dft_index < n_dfts; dft_index++) {
+                uint16_t index_offset = dft_index * dft_width;
+                // multiply by twiddle factors (complex multiplication)
+                int16_t temp_real = real[index_offset + (i + (dft_width >> 1))];
+                int16_t temp_imag = imag[index_offset + (i + (dft_width >> 1))];
+                real[index_offset + (i + (dft_width >> 1))] = (temp_real * twiddle_real - temp_imag * twiddle_imag) / base_mag;
+                imag[index_offset + (i + (dft_width >> 1))] = (temp_real * twiddle_imag + temp_imag * twiddle_real) / base_mag;
+                // bottom cross bars
+                temp_real = real[index_offset + i];
+                temp_imag = imag[index_offset + i];
+                real[index_offset + i] += real[index_offset + i + (dft_width >> 1)];
+                imag[index_offset + i] += imag[index_offset + i + (dft_width >> 1)];
+                // upper cross bars
+                real[index_offset + i + (dft_width >> 1)] = temp_real - real[index_offset + i + (dft_width >> 1)];
+                imag[index_offset + i + (dft_width >> 1)] = temp_imag - imag[index_offset + i + (dft_width >> 1)];
+            }
+            // increment twiddle angles (trig sum/difference identity)
+            temp = twiddle_imag;
+            twiddle_imag = (twiddle_real * sin_angle_increment + temp * cos_angle_increment) / base_mag;
+            twiddle_real = (twiddle_real * cos_angle_increment - temp * sin_angle_increment) / base_mag;
+        }
+        // trig half angle identity, reducing the angle by half each time.
+        // essentially, this cuts the "increment" of the angle in half each time. 
+        sin_angle_increment = sqrt(base_mag * (base_mag - cos_angle_increment) / 2);
+        cos_angle_increment = sqrt(base_mag * (base_mag + cos_angle_increment) / 2);
+        sin_angle_increment *= -1;
+    }
+    return true;
+}<p>
+    <p>
+        Since this uses integers, it can overflow if there is too much of a particular frequency. Use with caution.
+    </p>
+    <p>
+        This implementation does not explicitly use any trigonometric functions, but it does use some trig identities. Also, 
+        the floating point square root calculation is called 2log2(n) times, so I think that it is an acceptable compute time tradeoff.
+    </p>
+    </div>
+    <script src="/page_template.js"></script>
+</body>
