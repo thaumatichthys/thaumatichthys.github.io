@@ -259,7 +259,7 @@ PINLOW:
         </p>
         <img src="qcw2-assembled.jpg" alt="assembled tesla coil driver">
         <p>
-            I used my <a href="/projects/optical-sensor/">diy knockoff version</a> of the IFD-95T fiber optic receiver. It is quite a 
+            I used my <a href="/projects/optical-sensor/" target="_blank">diy knockoff version</a> of the IFD-95T fiber optic receiver. It is quite a 
             bit cheaper than the real one.
         </p>
         <h4>
@@ -282,7 +282,8 @@ PINLOW:
         </p>
         <img src="coil-winding-thing.jpg" alt="coil winding rig thing">
         <p>
-            Winding the coil was relatively quick using the motorized winding thing. I used 32 AWG wire for this. 
+            Winding the coil was relatively quick using the motorized winding thing. I used roughly 150m of 32 AWG wire, resulting in 
+            around 750 windings. 
             (Don't mind the messy desk).
         </p>
         <img src="partly-wound.jpg" alt="partly wound secondary coil on the winding rig">
@@ -323,7 +324,9 @@ PINLOW:
         <p>
             Since this is a QCW DRSSTC, it needs a primary capacitor. This should be able to handle a lot of current and voltage, so 
             having just one capacitor would require a very expensive capacitor. A simpler method is to just use a bunch of smaller ones. 
-            I ended up using a 10 series, 2 parallel bank of KEMET R76 39nF 2kVDC film capacitors. The result is a 7.8nF, 7kVAC MMC.
+            I ended up using a 10 series, 2 parallel bank of KEMET R76 39nF 2kVDC film capacitors. They seem to have different voltage ratings 
+            as a function of frequency, but according to the datasheet, they are "nominally" 700VAC rated. This actually seems to be for a 
+            different frequency, but for short durations I think it should be fine. The result is a 7.8nF, 7kVAC MMC.
         </p>
         <img src="capacitor-bank-board.jpg" alt="plastic board with printout of board design">
         <p>
@@ -390,8 +393,8 @@ PINLOW:
             If the oscillations are initially started by exciting the primary circuit at a certain pole frequency, when you ramp up the 
             power, it will continue oscillating at the same frequency. This means that for my driver, I can set a gpio to toggle 
             at the upper pole frequency, feed that into the power inverter while setting the phase shift to 10-20% power. This will 
-            cause the coil to oscillate at the upper pole (and without the need for ZCS), and after that, the gpio toggling can be turned off,
-            and the power can be ramped to 100% for the classical "QCW" spark.
+            cause the coil to oscillate at the upper pole (and without the need for ZCS, because of the low power setting), and after that, 
+            the gpio toggling can be turned off, and the power can be ramped to 100% for the classical "QCW" spark.
         </p>
         <h4>
             Audio modulation
@@ -425,6 +428,42 @@ PINLOW:
         <!-- https://www.desmos.com/calculator/qwpgwqgch3 -->
         <!-- <img src="" alt=""> -->
         <!-- <a href="link" target="_blank">text</a> -->
+        <br>
+        <h3>
+            Credits and resources 
+        </h3>
+        <p>
+            I had used quite a bit of resources from the internet, including various people's blogs and forum posts.
+        </p>
+        <ul>
+            <li>
+                <b><a href="https://www.loneoceans.com/labs/qcw2/" target="_blank">Loneoceans Laboratories</a></b>
+                <p>
+                    This site is about as close to a goldmine as you can get for this kind of stuff, and relevant to this project are his three QCW DRSSTC 
+                    pages, in addition to his UD2.7 page, and the general DRSSTC ones as well. 
+                </p>
+            </li>
+            <li>
+                <b><a href="https://tqfp.org/simple-tesla/simpledriver-v23-in-english.html#!prettyPhoto" target="_blank">Simpledriver 2.3</a></b>
+                <p>
+                    Some features of the driver were taken from this design, such as the output stage, and the UVLO and other protections. It is also the one 
+                    place which I got the ideas of the alternated phase shift, since Loneoceans' QCW 2 did not go into much detail about the phase shifting. 
+                </p>
+                <p>
+                    As mentioned previously, the schematic page link seems to be broken for the TQFP page, but it can still be found on the 
+                    <a href="https://web.archive.org/web/20230307111910/https://bsvi.ru/projects/SimpleDriver2/SimpleDriver_2.3.pdf" target="_blank">
+                        internet archive</a>.
+                </p>
+            </li>
+            <li>
+                <b><a href="https://highvoltageforum.net/index.php" target="_blank">High Voltage Forum</a></b>
+                <p>
+                    The people here seem to really know what they are doing, and when I had unanswered questions or ambiguities, they could almost always be 
+                    answered here. In addition, <a href="https://highvoltageforum.net/index.php?topic=1988.0" target="_blank">some threads</a> were especially 
+                    helpful to read through. 
+                </p>
+            </li>
+        </ul>
     </div>
     <script src="/page_template.js"></script>
 </body>
