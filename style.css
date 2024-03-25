@@ -5,11 +5,23 @@
 	/* sets the font colour */
 	color: white;
 	/* sets the header to dimgray */
-	background-color: rgb(62, 64, 97);
+	background-color: rgb(72, 107, 117);
 	/* moves the content to the right by 10% of the page width */
 	padding-left: 10%;
 	display: flex;
 	flex-wrap: wrap;
+}
+
+/* set parameters for the footer; the gray area at the bottom */
+.footer {
+	/* set font */
+	font-family: helvetica;
+	/* center the text */
+	text-align: center;
+	/* text colour set to white */
+	color: white;
+	/* set background colour to dim gray */
+	background-color: rgb(72, 107, 117);
 }
 
 /* sets the parameters of the text in the header */
@@ -154,18 +166,6 @@ a:active {
 .content-title {
 	/* set text colour to 0x303040 */
 	color: #303040;
-}
-
-/* set parameters for the footer; the gray area at the bottom */
-.footer {
-	/* set font */
-	font-family: helvetica;
-	/* center the text */
-	text-align: center;
-	/* text colour set to white */
-	color: white;
-	/* set background colour to dim gray */
-	background-color: rgb(62, 64, 97);
 }
 
 /* set parameters for the unordered list navbar */
