@@ -1,5 +1,18 @@
 <!DOCTYPE html>
 <html>
+
+<noscript class="noJS">
+    <div style="font-family: Arial, Helvetica, sans-serif;">
+        <h1 style="color: #303040;">
+            Please enable JavaScript
+        </h1>
+        <p>
+            This site uses JS to run properly, please enable it in your browser
+        </p>
+    </div>
+    <img src="/res/sadface.png" alt="sadface">
+</noscript>
+
 <body>
     <div hidden id="page-title">
         DIY reflow oven
@@ -66,6 +79,9 @@
             TFT LCD display. It has a terrible viewing angle, but it works well enough for this.
         </p>
         <p>
+            The thermocouple I used was a type K thermocouple with a MAX6675 chip.
+        </p>
+        <p>
             As for the power supply, pretty much any DC power supply will work, and in my case, I decided to use an old phone charger, which 
             probably seems really strange, but it works and its what I had on hand.
         </p>
@@ -84,6 +100,10 @@
             hole or something to run it through. I had some issues with thermal "lag", the temperature according to the thermocouple would often
             continue to go up even after the oven was switched off, meaning that the temperature accuracy tends to be kind of bad. This is generally 
             fine for most projects though.
+        </p>
+        <p>
+            <a href="sketch_jul16a.zip" download target="_blank">Here</a> is the current Arduino code. I do not claim that it works well, nor that
+            it is written particularly cleanly. Use at your own risk.
         </p>
     </div>
     <script src="/page_template.js"></script>

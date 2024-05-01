@@ -1,5 +1,18 @@
 <!DOCTYPE html>
 <html>
+
+<noscript class="noJS">
+    <div style="font-family: Arial, Helvetica, sans-serif;">
+        <h1 style="color: #303040;">
+            Please enable JavaScript
+        </h1>
+        <p>
+            This site uses JS to run properly, please enable it in your browser
+        </p>
+    </div>
+    <img src="/res/sadface.png" alt="sadface">
+</noscript>
+
 <body>
     <div hidden id="page-title">
         QCW tesla coil
@@ -11,7 +24,7 @@
         <p>
             Before starting, I should say that all my knowledge is based on reading stuff from the internet, and some high school 
             physics. Thus, there are probably inaccuracies in this article, and don't expect anything in particular to be correct.
-            Also, the final results for this coil are very disappointing, simply because I ran out of time before I could test it 
+            Also, the final results for this coil are somewhat disappointing, since I ran out of time before I could test it 
             with the proper capacitor to supply it with power, and thus the arcs I achieved were pathetically small. I do intend to 
             work on it again after I have time though.
         </p>
@@ -87,7 +100,7 @@
         <p>
             The RP2040 has two separate PIO peripherals, each consisting of a shared program memory (which holds a maximum of 32
             instructions), and four state machines which can independantly run the shared program. There are only nine different 
-            instructions that the state machines can run, but this is sufficient for what I am doing.
+            instructions that the state machines can run, but this is sufficient for most purposes.
         </p>
         <p>
             The phase shift program essentially waits for an input state change, and then sets a counter which increments up to a 
@@ -103,9 +116,9 @@
         </p>
         <p>
             A solution to this problem was to literally just put both programs into the same memory, but to ensure that they each had 
-            an unconditional jump to their starting points. The state machines can be set to start their program counters at a certain 
+            an unconditional jump to their respective starting points. The state machines can be set to start their program counters at a certain 
             offset, so different state machines could run these different programs independantly. I did get pretty lucky though, since 
-            my two programs just happened to add up to exactly 32 instructions, which perfectly fit in the memory space.
+            my two programs just happened to add up to exactly 32 instructions, which fits perfectly in the available memory space.
         </p>
         <p>
             PhaseSwapLag.pio:
