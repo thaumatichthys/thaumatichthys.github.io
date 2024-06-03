@@ -44,7 +44,6 @@
     ButtonHandlerOnPress(uint8_t pin, void (*cb)(int)) {
         this->callback = cb;
         this->pin_num = pin;
-        this->activate_on_release = activateOnRelease;
         pinMode(pin, INPUT);
     }
     void update() {                                 // this needs to be called frequently
