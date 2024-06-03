@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<noscript class="noJS">
+    <div style="font-family: Arial, Helvetica, sans-serif;">
+        <h1 style="color: #303040;">
+            Please enable JavaScript
+        </h1>
+        <p>
+            This site uses JS to run properly, please enable it in your browser
+        </p>
+    </div>
+    <img src="/res/sadface.png" alt="sadface">
+</noscript>
+
+<body>
+    <div hidden id="page-title">
+        Oven model with thermal mass and delayed heat transfer
+    </div>
+    <div hidden id="page-content">
+        <p>
+            May 28, 2024
+        </p>
+        <p>
+            A quick model I made in python that sort of models the temperature read by a thermocouple as an oven heats up.
+        </p>
+
+        <p>
+            Python class:
+        </p>
+        <p class="codebox">class OvenModel:
+    def __init__(self):
+        self.power = 1400  # W
+        self.thermalMass = 550  # J/K
+        self.roomTemp = 20  # C
+        # maximum obtainable temperature
+        self.maxTemp = 350  # C
+        self.thermoCoupleThermalMass = 280  # J/K
+        # thermal resistance between oven's thermal mass and thermocouple
+        self.thermoCoupleThermalResistance = 0.24  # guessed values
+        self.thermoCoupleNoise = 2  # maximum +- 2 degrees of randomness for thermocouple
+        # (calculated value), is the thermal resistance of the heat leaking out of the oven
+        self.thermalResistance = (self.maxTemp - self.roomTemp) / self.power
+        self.temp = self.roomTemp
+        self.thermoCoupleTemp = self.roomTemp
+        self.on = False
+
+    def update(self, dt):
+        # dt is in seconds
+        actualPower = 0
+        if self.on:
+            actualPower = self.power
+        netEnergy = dt * (actualPower - (self.temp - self.roomTemp) / self.thermalResistance)
+        self.temp += netEnergy / self.thermalMass
+        netEnergyIntoThermocouple = dt * (self.temp - self.thermoCoupleTemp) / self.thermoCoupleThermalResistance
+        deltaTempThermocouple = netEnergyIntoThermocouple / self.thermoCoupleThermalMass
+        self.thermoCoupleTemp += deltaTempThermocouple
+        return self.thermoCoupleTemp + random.random() * self.thermoCoupleNoise
+
+        </p>
+        <p>
+            Instantiate the class, and call update() with a time step (1 second is fine usually), and it update() returns the temperature 
+            "read" by a "thermocouple". It seems to be sort of similar to a real toaster oven.
+        </p>
+        <p>
+            (If you want to model 500 seconds of the oven's temperature, you must call update() 500 times and save the results to a buffer or something).
+        </p>
+        <img src="temperature-graph.png" alt="graph of temperature modelled by this class">
+        <p>
+            The blue line is the "real" (modelled) temperature, while the other one is the ideal. This example is not using a PID loop, but simply, 
+            if real temperature is less than ideal, turn on the oven, else, turn off the oven.
+        </p>
+        <p>
+            This graph is somewhat similar to one of a real toaster oven.
+        </p>
+        <img src="real_oven_temperatures.jpg" alt="graph of temperature of real oven">
+        <p>
+            (Apologies for the poor image quality. Also, the weird dip near the end is because I opened the oven's door.)
+        </p>
+        <p>
+            See also: <a href="/projects/reflow-oven/", target="_blank">toaster reflow oven</a>
+        </p>
+    </div>
+    <script src="/page_template.js"></script>
+</body>
