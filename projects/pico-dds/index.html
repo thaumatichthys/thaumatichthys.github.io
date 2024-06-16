@@ -286,6 +286,18 @@ uint32_t ChangeDDSFreq(double requestedFreq) {
             independant of the CPU when running, and only uses it to set up.
             It certainly has room for improvement, especially in terms of sample rate, and in the future, I might try just using one of the CPU cores to speed things up. 
         </p>
+        <h4>
+            (the next day)
+        </h4>
+        <p>
+            So it turns out that the DDS still works if instead of chaining the DMAs together and running them serially, they can actually just all run in parallel,
+            and that makes the entire thing around three times faster. Now instead of each having a transfer count if 1, they each transfer 0xFFFFFFFF times, and 
+            with a 420 MHz system clock and a 6x divider, it runs for around a minute before needing to be restarted, as opposed to the indefinite previously.
+        </p>
+        <p>
+            For my application, a few seconds of run time would suffice, but because of this run time limitation, I have included the old version 
+            <a href="RP2040-DDS-chained.zip" download target="_blank">here</a>. The github has been updated to the new version.
+        </p>
     </div>
     <script src="/page_template.js"></script>
 </body>
