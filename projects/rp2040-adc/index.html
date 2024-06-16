@@ -27,9 +27,16 @@
         <p>
             If 4 MS/s is enough for you though, you can just go to 
             <a href="https://forums.raspberrypi.com/viewtopic.php?t=340691" target="_blank">this forum post</a>.
+            This is basically just switching the ADC's clock source to the system clock as opposed to the default 
+            USB clock, which makes it go quite a bit faster, especially when combined with a heavy overclock.
         </p>
         <p>
-            Basically, you just need to do the following.
+            This page uses a similar concept, but we set the system clock to be half of the pll_sys frequency, while setting the adc clock 
+            to be the entire pll_sys frequency. This allows us to clock the ADC with up to 816MHz, and since the ADC takes 96 clock cycles per 
+            conversion, this yields 8.5MS/s.
+        </p>
+        <p>
+            Basically, you just need to do the following, in order.
         </p>
         <ol>
             <li>
