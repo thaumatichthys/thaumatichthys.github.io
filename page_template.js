@@ -80,6 +80,13 @@ function UpdatePage() {
 	document.documentElement.innerHTML = page_template.documentElement.innerHTML;
 	document.close();
 	console.log("Page loaded through JS")
+
+	if (page_template.getElementsByClassName("includeMathJax").length != 0) {
+		var mj = document.createElement('script');
+		mj.src = "/mathjax-es5/tex-chtml.js";
+		document.head.appendChild(mj);
+		console.log("Using MathJax");
+	}
 }
 
 function SetUpCodeBoxes() {
@@ -148,3 +155,4 @@ script.onload = function() {
 	gtag('config', 'G-F13RJTEZ4T');
 };
 document.head.appendChild(script);
+

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<noscript class="noJS">
+    <div style="font-family: Arial, Helvetica, sans-serif;">
+        <h1 style="color: #303040;">
+            Please enable JavaScript
+        </h1>
+        <p>
+            This site uses JS to run properly, please enable it in your browser
+        </p>
+    </div>
+    <img src="/res/sadface.png" alt="sadface">
+  </noscript>
+
+<body>
+    <div hidden id="page-title">
+        Saturation current calculator for inductors and flyback transformers
+    </div>
+    <div hidden id="page-content">
+        <div class="includeMathJax"></div>  
+        <p>August 4, 2024</p>
+        <p>
+            Firstly, I want to say that I technically don't know what I am doing here, so please don't use this for anything really important.
+        </p>
+
+        <h4>Enter the values and it gives you saturation current.</h4>
+
+        <div>
+            <div style="background-color:rgb(149, 197, 240); padding: 1%; border-radius: 15px;">
+                <h3>First we calculate how many turns of wire you will need in order to get your desired inductance.</h3>
+                <h4>Enter the required inductance (uH):</h4>
+                <input type="text" id="lrInput" oninput="lrInputPressed()">
+                <h4>Enter \( A_L \) (Core factor, nH):</h4>
+                <input type="text" id="alInput" oninput="alInputPressed()">
+                <br>
+                <input type="checkbox" id="dontKnowAL" oninput="dontKnowALInputPressed()" value="yes">
+                <label for="dontKnowAL">I do not have the \(A_L\) value</label>
+
+
+                <h4 style="display: none;", class="dontknowAL">Enter the equivalent cross sectional area (mm<sup>2</sup>):</h4>
+                <input type="text" id="areaInput" oninput="areaInputPressed()" style="display: none;", class="dontknowAL">
+
+
+                <h4 style="display: none;", class="dontknowAL">Enter \( L_e \) (Equivalent length of the core, mm):</h4>
+                <input type="text" id="leInput2" oninput="leInput2Pressed()"  style="display: none;", class="dontknowAL">
+
+                <h4 style="display: none;", class="dontknowAL">Enter \( \mu_e \) (Equivalent relative permeability of the core material):</h4>
+                <input type="text" id="urInput2" oninput="urInput2Pressed()"  style="display: none;", class="dontknowAL">
+            </div>
+            <p>The number of turns you will need is <b id="nturns">NaN</b> turns.</p>
+            <br>
+            <div style="background-color:rgb(149, 197, 240); padding: 1%; border-radius: 15px;">
+                <h3>Now we calculate the maximum current that your inductor can handle before saturating.</h3>
+                <h4>Enter \( B_s \) (Core maximum B field, Teslas):</h4>
+                <input type="text" id="bsInput" oninput="bsInputPressed()">
+                <h4>Enter \( L_e \) (Equivalent length of the core, mm):</h4>
+                <input type="text" id="leInput" oninput="leInputPressed()">
+                <h4>Enter \( \mu_e \) (Equivalent relative permeability of the core material):</h4>
+                <input type="text" id="urInput" oninput="urInputPressed()">
+                <br>
+            </div>
+            <p>The saturation current of your inductor is <b id="isat">NaN</b> amps.</p>
+        </div>
+    </div>
+    <script src="isat_calc.js"></script>
+    <script src="/page_template.js"></script>
+</body>
