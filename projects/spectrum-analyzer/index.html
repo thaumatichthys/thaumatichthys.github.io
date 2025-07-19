@@ -126,3 +126,131 @@
     </div>
     <script src="/page_template.js"></script>
 </body>
+<!DOCTYPE html>
+<html>
+
+<noscript class="noJS">
+    <div style="font-family: Arial, Helvetica, sans-serif;">
+        <h1 style="color: #303040;">
+            Please enable JavaScript
+        </h1>
+        <p>
+            This site uses JS to run properly, please enable it in your browser
+        </p>
+    </div>
+    <img src="/res/sadface.png" alt="sadface">
+</noscript>
+
+<body>
+    <div hidden id="page-title">
+        Design for 5 GHz Spectrum Analyzer
+    </div>
+    <div hidden id="page-content">
+        <div class="includeMathJax"></div>  
+        <p>
+            June 2025
+        </p>
+        <p>
+            This is not a completed project as of right now. I am still deciding whether I want to continue it, but I thought I would document some of it anyways.
+        </p>
+        <p>
+            So for a while I wanted to build a spectrum analyzer. Ideally it would go up to a reasonably high frequency, at least a few GHz. For me, it would also 
+            probably end up being a digital one that used some kind of FFT.
+        </p>
+        <h3>Reference Designs</h3>
+        <p>
+            I was obviously not going to invent my own architecture, since I think I'd actually need to know what I am doing for that. So instead I kind of "emulate"
+            some existing designs. I ended up taking a lot of ideas from a few sources. Firstly, <a href="https://lea.hamradio.si/~s53mv/spectana/sa.html", target="_blank">an article by Matjaz Vidmar</a>,
+            and secondly, <a href="https://youtu.be/-8fr_otW0q4?t=1359", target="_blank">EEVBlog's teardown of the Siglent SSA3021X</a>. There is also a user on the 
+            <a href="https://www.eevblog.com/forum/blog/eevblog-892-siglent-ssa3021x-spectrum-analyser-teardown/50/", target="_blank">EEVBlog forum</a> that provides 
+            some useful insight.
+             
+        </p> <!-- https://www.eevblog.com/forum/blog/eevblog-892-siglent-ssa3021x-spectrum-analyser-teardown/50/ -->
+        <h3>
+            Main Ideas
+        </h3>
+        <p>
+            In the SSA3021X, the conversions are approximately as follows, according to user "Garan" on the EEVBlog forum. 
+        </p>
+        <ul>
+            <li>9 kHz to 2.1 GHz input</li>
+            <li>Upconversion to 4.33 GHz, with LO of 4330 MHz to 6430 MHz</li>
+            <li>Downconversion to 810 MHz, with LO of 3520 MHz</li>
+            <li>Downconversion to 70 MHz, with LO of 880 MHz</li>
+            <li>Aliasing down to 10 MHz by the ADC, with sample rate of 70 MHz</li>
+        </ul>
+        <h3>First IF selection</h3>
+        <p>
+            I think one of the main takeaways is that the first IF should be higher than the input frequency range. Assuming that the spectrum analyzer wouldn't have
+            multiple RF paths that it switches between, it must accept frequencies in the entire input range. This means that if the IF was in the middle of the
+            input range, it will be susceptible to image frequencies. For example, if the first IF was directly to 810 MHz, if the SA was tuned to 2000 MHz, then 
+            the first LO must be set to either (2000 - 810) MHz = 1190 MHz, or (2000 + 810) MHz = 2810 MHz.
+        </p>
+        <p>
+            Lets first look into the first option with LO of 1190 MHz. In this case, the SA would receive signals not only in the desired (1190 + 810) MHz = 2000 MHz 
+            band, but also (1190 - 810) MHz = 380 MHz band. And we can't just filter this out since we have already defined our SA to only have a single input path 
+            and also have a lower frequency limit of 9 kHz.
+        </p>
+        <p>
+            Now for the other option, with LO of 2810 MHz. Here, the SA would receive signals in (2810 + 810 MHz) = 3620 MHz, and (2810 - 810) MHz = 2000 MHz. 
+            Actually in this case, the image frequency can be filtered out with a low pass filter on the input. But the problem is that if we now try a different 
+            input frequency, still within our specified range, of 300 MHz, now with the same logic, with LO = F_in + IF, LO will be 1110 MHz. Now, there will again be 
+            an image frequency that is impossible to filter out, at 1920 MHz. 
+        </p>
+        <p>
+            So, TL;DR, the first IF should be above the input frequency range.
+        </p>
+        <p>
+            Another consideration is the range of the LO sweep. So assuming our first IF bandwidth is narrow compared to the input range, we must sweep the LO 
+            across a range of close to the entire input range. In practice, generating an LO is much easier when the sweep range is a small fraction of the actual 
+            frequency of the LO. Furthermore, if the LO is generated via a PLL or something similar, it will have a bunch of harmonics that need to be filtered 
+            out. Assuming integer harmonics of 2n, 3n, etc, the number of switched filters we will need is approximately described by 
+            \( ceil{( \log_2{(\frac{   F_{high}   }{   F_{low}   })})} \). If we plug in our sweep range, and set \(  F_{low}  \) as a parameter,
+            we will get \( ceil{( \log_2{(\frac{   F_{low} + \Delta F   }{   F_{low}   })})} \). Basically, assuming we can have ideal low pass filters, 
+            if our LO starts from above the input range, then we can get away with using only one low pass filter to remove all the integer harmonics.
+        </p>
+        <p>
+            Applying this to my 5000 MHz SA, I decided on a 7800 MHz first IF, with an LO that sweeps from 7800 MHz to 12800 MHz.
+        </p>
+        <h3>Other IF stages</h3>
+        <p>
+            Admittedly, I did not give as much thought as I probably should have for the selection of the other IF frequencies. For the second one, I just 
+            chose one that was around 1 GHz, and based it off the availability of parts. Specifically, I chose the 915 MHz band because SAW filters are common 
+            around that frequency. The next IF frequency was also based on that, and for me, I chose 79 MHz due to the availability of an 836 MHz SAW filter for 
+            the LO. 
+        </p>
+        <h3>
+            LO Generation
+        </h3>
+        <p>
+            For the first and second LO, there were a few choices available. I didn't want to have to build up the PLL myself using a VCO and a fractional PLL IC 
+            since from what I can find, the VCOs are usually about as expensive as the all in one options. As for those, there are a few common families: 
+        </p>
+        <h4>
+            LMX2594
+        </h4>
+        <img src="lmx2594.PNG" alt="lmx2594 block diagram">
+        <p>
+            This one could work, and the variable output power is actually a really nice feature when you don't know exactly how much losses will exist in the PCB.
+            I eventually decided that it was too expensive though, which, now that I think about it, maybe was not the greatest reason. Either way though, it is a 
+            PLL + VCO synthesizer that goes from 10 MHz to 15 GHz. It could actually work for this application.
+        </p>
+        <h4>
+            STuW81300 
+        </h4>
+        <img src="stuw81300.PNG" alt="stuw81300 block diagram">
+        <p>
+            This one was a bit cheaper, and for the purposes of the spectrum analyzer, it was sufficient, since its higher frequency band covered the range of 7.7
+            to 16 GHz. This is the one I ended up choosing, and perhaps this was not the greatest decision, since it does use a multiplier and thus could produce 
+            fractional harmonics. It is also a PLL + VCO synthesizer.
+        </p>
+        <p>
+            There are some other choices too for microwave synthesizers, but these would not work for various reasons.
+            ADF43xx: Too expensive for the frequencies required
+            LTC6948: Frequency not high enough
+            MAX2871: Frequency not high enough
+        </p>
+
+    </div>
+    <script src="/page_template.js"></script>
+</body>
