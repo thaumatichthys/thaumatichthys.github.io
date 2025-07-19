@@ -10,7 +10,7 @@ const string_template = `<!DOCTYPE html>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
 	<title id="page-tab-title">Thaumatichthys</title>
-	<link rel="icon" type="image/x-icon" href="/res/wavelet.png">
+	<link rel="icon" type="image/x-icon" href="/res/circle2.png">
 	<link href="/style.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
