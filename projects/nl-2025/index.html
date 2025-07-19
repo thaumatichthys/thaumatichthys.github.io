@@ -21,20 +21,240 @@
         <p>
             May 18-23, 2025
         </p>
+        <img src="random-pictures/36.jpg" alt="misc pictures">
         <p>
             In 2025, I was fortunate enough to be part of the European Space Agency's soldering course for the 
             Fly Your Satellite 4 teams. Ada Li and I represented ALEASAT, the joint project between the UBC Orbit 
             and SFU Satellite design teams. The event lasted two days, but I decided to stay in the Netherlands for 
             three extra days.
         </p>
-        <h4>
+        <h3>
             ESA FYS4 Soldering Course 
-        </h4>
+        </h3>
         <p>
             The event took place at ESA's ESTEC facility, just north of Leiden, Netherlands. During this event, we 
             were taught basic soldering concepts relating to high reliability, flight qualified solder joints. We have 
             compiled some basic notes below. 
         </p>
+        <h4>
+            PCB Substrate and general info
+        </h4>
+        <p>
+            For large expensive satellites, the PCB material is typically some kind of composite material, with bare copper traces,
+            and no silkscreen or solder mask. And also a ton of documentation to prove that it won't outgas in a hard vacuum. For 
+            cubesats and other lower-budget satellites, it is often sufficient to use regular FR4 with solder mask and silkscreen, 
+            as long as it is coated in an appropriate conformal coating.
+        </p>
+        <p>
+            A significant portion of the effort and care goes into ensuring the environment and the joints are very clean, and free of 
+            any dirt or debris. The PCB, components, fingers, tweezers, workbench, and anything else within the vicinity should 
+            be wiped down with isopropyl alcohol using a lint free cloth. Do not attempt to wipe finished solder joints with any cloth 
+            though, more on this later.
+        </p>
+        <p>
+            For aerospace applications, use Sn63/Pb37 leaded solder with flux core. Lead free solder is more difficult to solder, 
+            but the main issue is that it is too brittle. Set the iron temperature to around 310 Celsius. This can be changed but 
+            try not to exceed around 350 Celsius.
+        </p>
+        <h4>
+            Solder Geometry - THT
+        </h4>
+        <img src="tht-solder.png" alt="tht solder geometry">
+        <p>Example of an axial resistor.</p>
+        <p>
+            Before doing any soldering, a spacer must be made to form dimension "C" in the above image. This spacer can be made using a 
+            few layers of kapton tape, cut into a small strip. In our case, it was five layers. The reason for this is so that the conformal 
+            coating will have space to flow underneath the part. Otherwise, there may be a small bubble filled with air, which could 
+            potentially expand or explode the conformal coating when exposed to vacuum.
+        </p>
+        <p>
+            The leads must be bent into shape using needle nose pliers or tweezers. It is important to grip the leads directly next to 
+            the part, "before" the bend. In the image, this would be the horizontal part of the leads. This is to ensure that the pliers 
+            do not damage or get dirt onto the part which will be soldered. The bending must be done carefully, and ideally, the pins 
+            should sit directly in the middle of the plated through holes, and should freely fall out if the board is turned over. 
+        </p>
+        <p>
+            The leads must be pre-cut as well. This is in contrast with the instructions for a lot of DIY soldering kits, which tell you to 
+            bend the leads to secure them in place, solder them, and then cut afterwards. Of course that is fine for random gadgets, but 
+            probably isn't the best for satellites and aerospace applications.
+        </p>
+        <img src="tht-solder-2.png" alt="tht solder geometry">
+        <p>
+            Geometry of the solder joint. PCB substrate is green, solder is blue, copper plating is orange, component lead is gray. 
+        </p>
+        <ul>
+            <li>
+                The leads should be cut so that dimension "A" is roughly 1.25-1.5x dimension "B".
+            </li>
+            <li>
+                Angle "a" should be around 45 degrees
+            </li>
+            <li>
+                As shown in the image, the mound shall not be convex (bulging outwards).
+            </li>
+        </ul>
+        <p>
+            The solder joint should be very smooth and shiny under a microscope, without any discontinuities, gaps, bubbles, 
+            valleys, or ridges. Also, make sure the little surface left by the cutting of the leads is also covered in solder. 
+            In the image, this is the small "rooftop" shaped surface on the top.
+        </p>
+        <p>
+            We were only taught how to make the bottom side joint perfect, but in reality for an actual satellite, both the top and bottom
+            sides should be as perfect as possible.
+        </p>
+        <h4>
+            SMT Soldering
+        </h4>
+        <p>
+            Much of the same points still apply: Ensure cleanliness, make sure the joint is smooth with no defects, etc. 
+        </p>
+        <p>
+            With SMT, it may also be necessary to make a spacer to lift the part off the board a little bit to allow conformal coating 
+            to flow underneath. This spacer should be 3-4 layers of kapton tape, and should be partially inserted under the part 
+            when soldering the first joint. I think it is easier if you see the diagram.
+        </p>
+        <img src="smt-solder.png" alt="smt solder geometry">
+        <p>
+            In this diagram, the spacer forms dimension "d". Once you form the first joint, remove the spacer if you used one, and very carefully do 
+            the other one. Do not take more than around 3 seconds to do the next one, or else the heat will melt the first joint, and 
+            you will need to restart.
+        </p>
+        <h4>
+            Cleaning flux
+        </h4>
+        <p>
+            As mentioned previously, DO NOT use any sort of cloth or paper towel to clean the joints. They have sharp edges and tear 
+            bits of cloth off, and you will never be able to clean it off properly after that. Instead, use plenty of isopropyl alcohol 
+            and use a stiff brush, and go at it for plenty of time, maybe 10-20 seconds.
+        </p>
+        <h4>
+            Good and bad joints 
+        </h4>
+        <img src="ada-solder.png" alt="tht joints">
+        <p>
+            This is a picture from a part of a presentation by Ada. The joint on the left is what a good joint should look like, 
+            apart from the cut surface of the lead not being covered in solder. I believe the one on the right could use a bit more 
+            cleaning with the brush.
+        </p>
+        <img src="smt-bad.png" alt="smt gaps">
+        <p>
+            These are two of my defective SMT joints. Notice the small gashes on the blobs, likely caused by the soldering iron tip 
+            being a bit too narrow, and causing uneven heating. This causes gashes to form when the iron is removed. 
+        </p>
+        <img src="smt-good.png" alt="smt good">
+        <p>
+            These two joints could be considered alright. They are smooth with no gashes. The one on the left appears to sit a bit 
+            lower compared to the one next to it, since I did not use a spacer for the left one.
+        </p>
+        <p>
+            This pretty much concludes the soldering.
+        </p>
+        <img src="random-pictures/The_students_and_the_trainer_at_the_end_of_the_course_pillars.jpg" alt="misc">
+        <p>
+            Picture of the participants and the instructor (center). The participants included ALEASAT of UBC and SFU in Vancouver,
+            Da Vinci Satellite of TU Delft in The Netherlands, PoCat-Lektron of UPC in Barcelona, and Redpill of University of Padua, Italy.
+            Image credit: ESA
+        </p>
+        <h3>
+            Random Netherlands pictures 
+        </h3>
+        <p>
+            The soldering course was two days, but I stayed for a total of five. So I had some time to do some touristy stuff too.
+        </p>
+        <img src="random-pictures/1.jpg" alt="misc pictures">
+<img src="random-pictures/2.jpg" alt="misc pictures">
+<img src="random-pictures/3.jpg" alt="misc pictures">
+<img src="random-pictures/4.jpg" alt="misc pictures">
+<img src="random-pictures/5.jpg" alt="misc pictures">
+<img src="random-pictures/6.jpg" alt="misc pictures">
+<img src="random-pictures/7.jpg" alt="misc pictures">
+<img src="random-pictures/8.jpg" alt="misc pictures">
+<img src="random-pictures/9.jpg" alt="misc pictures">
+<img src="random-pictures/10.jpg" alt="misc pictures">
+<img src="random-pictures/11.jpg" alt="misc pictures">
+<img src="random-pictures/12.jpg" alt="misc pictures">
+<img src="random-pictures/13.jpg" alt="misc pictures">
+<img src="random-pictures/14.jpg" alt="misc pictures">
+<img src="random-pictures/15.jpg" alt="misc pictures">
+<img src="random-pictures/16.jpg" alt="misc pictures">
+<img src="random-pictures/17.jpg" alt="misc pictures">
+<img src="random-pictures/18.jpg" alt="misc pictures">
+<img src="random-pictures/19.jpg" alt="misc pictures">
+<img src="random-pictures/20.jpg" alt="misc pictures">
+<img src="random-pictures/21.jpg" alt="misc pictures">
+<img src="random-pictures/22.jpg" alt="misc pictures">
+<img src="random-pictures/23.jpg" alt="misc pictures">
+<img src="random-pictures/24.jpg" alt="misc pictures">
+<img src="random-pictures/25.jpg" alt="misc pictures">
+<img src="random-pictures/26.jpg" alt="misc pictures">
+<img src="random-pictures/27.jpg" alt="misc pictures">
+<img src="random-pictures/28.jpg" alt="misc pictures">
+<img src="random-pictures/29.jpg" alt="misc pictures">
+<img src="random-pictures/30.jpg" alt="misc pictures">
+<img src="random-pictures/31.jpg" alt="misc pictures">
+<img src="random-pictures/32.jpg" alt="misc pictures">
+<img src="random-pictures/33.jpg" alt="misc pictures">
+<img src="random-pictures/34.jpg" alt="misc pictures">
+<img src="random-pictures/35.jpg" alt="misc pictures">
+<img src="random-pictures/36.jpg" alt="misc pictures">
+<img src="random-pictures/37.jpg" alt="misc pictures">
+<img src="random-pictures/38.jpg" alt="misc pictures">
+<img src="random-pictures/39.jpg" alt="misc pictures">
+<img src="random-pictures/40.jpg" alt="misc pictures">
+<img src="random-pictures/41.jpg" alt="misc pictures">
+<img src="random-pictures/42.jpg" alt="misc pictures">
+<img src="random-pictures/43.jpg" alt="misc pictures">
+<img src="random-pictures/44.jpg" alt="misc pictures">
+<img src="random-pictures/45.jpg" alt="misc pictures">
+<img src="random-pictures/46.jpg" alt="misc pictures">
+<img src="random-pictures/47.jpg" alt="misc pictures">
+<img src="random-pictures/48.jpg" alt="misc pictures">
+<img src="random-pictures/49.jpg" alt="misc pictures">
+<img src="random-pictures/50.jpg" alt="misc pictures">
+<img src="random-pictures/51.jpg" alt="misc pictures">
+<img src="random-pictures/52.jpg" alt="misc pictures">
+<img src="random-pictures/53.jpg" alt="misc pictures">
+<img src="random-pictures/54.jpg" alt="misc pictures">
+<img src="random-pictures/55.jpg" alt="misc pictures">
+<img src="random-pictures/56.jpg" alt="misc pictures">
+<img src="random-pictures/57.jpg" alt="misc pictures">
+<img src="random-pictures/58.jpg" alt="misc pictures">
+<img src="random-pictures/59.jpg" alt="misc pictures">
+<img src="random-pictures/60.jpg" alt="misc pictures">
+<img src="random-pictures/61.jpg" alt="misc pictures">
+<img src="random-pictures/62.jpg" alt="misc pictures">
+<img src="random-pictures/63.jpg" alt="misc pictures">
+<img src="random-pictures/64.jpg" alt="misc pictures">
+<img src="random-pictures/65.jpg" alt="misc pictures">
+<img src="random-pictures/66.jpg" alt="misc pictures">
+<img src="random-pictures/67.jpg" alt="misc pictures">
+<img src="random-pictures/68.jpg" alt="misc pictures">
+<img src="random-pictures/69.jpg" alt="misc pictures">
+<img src="random-pictures/70.jpg" alt="misc pictures">
+<img src="random-pictures/71.jpg" alt="misc pictures">
+<img src="random-pictures/72.jpg" alt="misc pictures">
+<img src="random-pictures/73.jpg" alt="misc pictures">
+<img src="random-pictures/74.jpg" alt="misc pictures">
+<img src="random-pictures/75.jpg" alt="misc pictures">
+<img src="random-pictures/76.jpg" alt="misc pictures">
+<img src="random-pictures/77.jpg" alt="misc pictures">
+<img src="random-pictures/78.jpg" alt="misc pictures">
+<img src="random-pictures/79.jpg" alt="misc pictures">
+<img src="random-pictures/80.jpg" alt="misc pictures">
+<img src="random-pictures/81.jpg" alt="misc pictures">
+<img src="random-pictures/82.jpg" alt="misc pictures">
+<img src="random-pictures/83.jpg" alt="misc pictures">
+<img src="random-pictures/84.jpg" alt="misc pictures">
+<img src="random-pictures/85.jpg" alt="misc pictures">
+<img src="random-pictures/86.jpg" alt="misc pictures">
+<img src="random-pictures/87.jpg" alt="misc pictures">
+<img src="random-pictures/88.jpg" alt="misc pictures">
+<img src="random-pictures/89.jpg" alt="misc pictures">
+<img src="random-pictures/90.jpg" alt="misc pictures">
+<img src="random-pictures/91.jpg" alt="misc pictures">
+<img src="random-pictures/92.jpg" alt="misc pictures">
+<img src="random-pictures/93.jpg" alt="misc pictures">
+<img src="random-pictures/94.jpg" alt="misc pictures">
     </div>
     <script src="/page_template.js"></script>
 </body>
