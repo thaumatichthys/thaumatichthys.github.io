@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<noscript class="noJS">
+    <div style="font-family: Arial, Helvetica, sans-serif;">
+        <h1 style="color: #303040;">
+            Please enable JavaScript
+        </h1>
+        <p>
+            This site uses JS to run properly, please enable it in your browser
+        </p>
+    </div>
+    <img src="/res/sadface.png" alt="sadface">
+</noscript>
+
+<body>
+    <div hidden id="page-title">
+        Experimental Chirp Spread Spectrum demodulator in C++
+    </div>
+    <div hidden id="page-content">
+        <p>
+            Aug 2025
+        </p>
+        <p>
+            This page is a bit of a stub, but after I failed to make a reliable DSSS demodulator, I tried making a chirp spread spectrum demodulator based on a custom encoding 
+            technique. The technique is very simple, it is literally linear up chirps for a '1' and linear down chirps for a '0'.
+        </p>
+        <p>
+            This demodulator unfortunately also doesn't work very well, but it was helpful in teaching how a few things work in the topics of DSP.
+            Also, it worked way better than the other one and was actually able to receive a few packets of data across a speaker + microphone air gap. It just 
+            wasn't reliable enough to use on a model submarine which was what I originally wanted to use it for.
+        </p>
+        <ul>
+            <li>CSS Demodulator, despreading via multiplication by complex conjugate of local chirp signal</li>
+            <li>IIR filters</li>
+            <li>FIR filters</li>
+            <li>Bitstream clock recovery (with PLL or with high-Q filter + zero crossing detector)</li>
+            <li>Pulse shaping and zero-ISI filters (raised cosine filter or 2x convolution of square root raised cosine)</li>
+        </ul>
+        <p>
+            Here is a diagram of how it works. Actually, I ended up switching out the arctan + d/dt + phase coherence discriminator to a more simple FFT based one that 
+            just tries to sync itself to the incoming stream via a peak detector on the FFT, and this was able to be much more sensitive to signals.
+        </p>
+        <img src="image.png", alt="diagram">
+        <p>
+            Here is the code if you want to check it out (no guarantee it works): <a href="https://github.com/thaumatichthys/chirp-spread-spectrum-cpp/tree/main", target="_blank">(link)</a>
+        </p>
+    </div>
+    <script src="/page_template.js"></script>
+</body>
