@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+
+<noscript class="noJS">
+    <div style="font-family: Arial, Helvetica, sans-serif;">
+        <h1 style="color: #303040;">
+            Please enable JavaScript
+        </h1>
+        <p>
+            This site uses JS to run properly, please enable it in your browser
+        </p>
+    </div>
+    <img src="/res/sadface.png" alt="sadface">
+</noscript>
+
+<body>
+    <div hidden id="page-title">
+        X-Band RF Oscillator
+    </div>
+    <div hidden id="page-content">
+        <div class="includeMathJax"></div>
+        <p>
+            October, 2025
+        </p>
+        <p>
+            For various RF applications, an oscillator is a useful block to have. For example, as an LO source when coupled with a PLL, or to power a cheap motion sensing radar, etc.
+        </p>
+        <p>
+            There are many such oscillators on the market, but ones that come as a prebuilt module are usually pretty expensive at these frequencies, but in theory 
+            they should be very cheap to make since there are affordable products that use these such as cheap motion sensing radars, satellite LNBs, etc. These often use 
+            either typical LC type resonators, or DROs (dielectric resonator oscillators). DROs are good, but apart from harvesting them out of cheap HB100 modules, I could not 
+            find any good supplier for the ceramic resonators for these. 
+        </p>
+        <img src="synergy-mw-datasheet.PNG", alt="synergy microwave VCO">
+        <p>
+            Here is an example of a COTS VCO unit. This would be perfect for a wide variety of projects, but from a quick call with Synergy Microwave, the price was kind of 
+            impractical for most projects at around $90 USD per unit. 
+        </p>
+        <p>
+            For these reasons, I decided to try to design my own cheap oscillator in the X band. It would be nice to have it be a VCO, but for now, I will try to just get a 
+            simple one to work.
+        </p>
+        <p>
+            So the requirements are as follows:
+            <ul>
+                <li>Fixed frequency at around 10 GHz (harmonics must be >10 GHz)</li>
+                <li>Be made of only cheap, discrete BJTs and passive components</li>
+                <li>>0 dBm output power at fundamental frequency</li>
+                <li>Run on <3 VDC</li>
+            </ul>
+        </p>
+        <p>
+            So now I had the requirements. I then proceeded to design the oscillator as a negative resistance, microstrip resonator based oscillator.
+        </p>
+        <p>
+            First I worked on the active circuit. This would be based on a BFP840E SiGe BJT from Infineon. These have an obsurd transition frequency at around 85 GHz 
+            under ideal conditions. This is much higher than the planned operating frequency of 10 GHz, but the extra Ft should allow for a good amount of gain at 10 GHz.
+            I then planned out the DC biasing circuit. Admittedly I am pretty new to RF oscillator design, and I was not too sure of which topology was best. But I decided on 
+            a common base amplifier design, which seemed to be a pretty common configuration.
+        </p>
+        <p>
+            Random side note: The Infineon catalog of SiGe RF HBTs is quite nice because they provide a Gummel-Poon SPICE model for every product in the family. This is very different from 
+            most other manufacturers. For example, I wanted to try using a CEL CE3514M4 pHEMT since it was the cheapest X band FET on Digikey, but although they do have 
+            large signal models, they are provided by a third party (Modelithics) as part of their COMPLETE Library product, which costs over $10k per year and is completely 
+            inaccessible for anyone that isn't part of a company, so I kind of gave up on that idea. At the very least they do actually provide a table of small signal S parameters
+            at various DC bias points, but that is besides the point.
+        </p>
+        <img src="active-circuit.PNG", alt="transistor circuit">
+        <p>
+            in Cadence AWR, I drew up this circuit using Infineon's provided BFP840E SPICE model. The transmission line values were determined without much theoretical math, 
+            but rather just through messing around with AWR's tuner tool to see which values provided a good negative resistance at the relevant frequency band. In this case, 
+            the DC bias point is set mainly by the resistor divider formed by R3 and R2, which should be close to 2/3 the supply voltage. The quiescent current is mainly set 
+            by R1, and assuming a high DC gain, the current can be roughly approximated by \( \frac{\frac{R2}{R2 + R3} V_{supply}  - 0.7}{R1} \), which is also 
+            \( \frac{V_{base} - 0.7}{R1} \). Plugging in the values at 2.5V supply, this yields roughly 9.7 mA.
+        </p>
+        <p>
+            C2 and C3 are bypass capacitors, acting as an RF short to the nodes they are connected. Though not shown in the AWR schematic, to help cover the nonidealities 
+            (equivalent series inductance, mostly) of the ceramic capacitors, I later also attached some tapered quarter wave open ended stubs to these nodes to further reduce the 
+            impedance to ground to close to zero. C1 is a DC block, and the collector is biased through a short microstrip transmission line. 
+        </p>
+        <img src="active-circuit-sweep.PNG", alt="graph of Zin of active circuit">
+        <p>
+            This is a plot of the simulated input impedance of the oscillator, swept from 6 GHz to 12 GHz. For the oscillator to sustain itself, we need \(  Re(Z_{resonator}) + Re(Z_{active}) = 0 \), so that 
+            the equivalent damping factor is zero. As we can see here, for the emitter port of the active circuit, for the relevant frequencies, the real input impedance 
+            is negative. Without this, sustained oscillation would not be possible.
+        </p>
+        <p>
+            Now for the resonator. A nice resonator would be a little puck of ceramic, like this. 
+        </p>
+        <img src="dielectric res.big.jpg", alt="DRO image">
+        <p>
+            Image source: Radartutorial.eu
+        </p>
+        <p>
+            These have a very high Q factor, leading to extremely low phase noise and good stability if designed well. Unfortunately however, Digikey, Mouser, Arrow, LCSC, and every other site I checked all don't sell these. I didn't want to get them from ebay or alibaba since 
+            I kind of wanted a reliable source, so I couldn't use these. Instead, I opted for a simple section of microstrip transmission line of around 37 degrees at 10 GHz. 
+            This length was also picked using AWR's tuner tool, so I can't really explain why it is what it is. 
+        </p>
+        <img src="oscillator-circuit.PNG", alt="oscillator circuit in AWR">
+        <p>
+            Putting the two together, this is what results. I moved the port over to the output side, and also added an OSCAPROBE element in the AWR schematic. This is required 
+            for simulation of an oscillator. I believe it provides an excitation source for the oscillations. And regarding the simulation, I used the Nonlinear->Power->Pharm measurement with source set to PORT_1. This simulation uses AWR's 
+            harmonic balance solver, and provides a graph of power plotted over frequency. At some point I had some issues with the convergence of the harmonic balance simulation, 
+            and sometimes it would fail depending on values of microstrip segments on the schematic. The transistor models are labelled as "valid up to 12 GHz", and since I am 
+            operating quite close to that limit, that might be why. 
+        </p>
+        <img src="hb-output.PNG", alt="harmonic balance output graph">
+        <p>
+            This is the output. The fundamental frequency is very near 10 GHz at just over 6 dBm amplitude. This is a good amount of power, so I moved to drawing up a test PCB in 
+            KiCAD. For something this simple (in terms of component count), I thought KiCAD would be sufficient over Altium, although I could have used that too.
+        </p>
+        <img src="kicad-schem.PNG", alt="kicad schematic">
+        <p>
+            This is the schematic for the test PCB. Of course this by itself doesn't really make a lot of sense, since the microstrip elements are not represented here, so 
+            a lot of features are either shorted or missing. This is just to make connecting the PCB together a bit easier. This workflow is not super ideal, and I am still 
+            kind of looking for a good workflow for PCBs involving both integrated microstrip components and lumped ones.
+        </p>
+        <img src="kicad-pcb-2d.PNG", alt="pcb in kicad">
+        <p>
+            This is the design I whipped up. There are a lot of vias, but they don't cost very much if the board is produced by a PCB fab house. The pizza slice things are 
+            the quarter wave stubs meant to produce a near zero impedance at a particular point, and that one stray looking trace from the transistor emitter is the resonator. 
+            I am not sure about what to do about that extra emitter, I could connect them together, but that distance is like almost a 40 degree microstrip, so I will leave it 
+            floating for now. I will have to see after I receive the PCBs to test them.  
+        </p>
+        <img src="kicad-pcb-3d.PNG", alt="pcb in kicad, 3d">
+        <h4>
+            Now we wait to see if these actually work (Would be pretty funny if they don't)
+        </h4>
+    </div>
+    <script src="/page_template.js"></script>
+</body>
