@@ -126,6 +126,49 @@
         <h4>
             Now we wait to see if these actually work (Would be pretty funny if they don't)
         </h4>
+        <p>
+            (About two weeks later:)
+        </p>
+        <p>
+            20 October, 2025, the PCBs arrived. 
+        </p>
+        <img src="pcb-blank.png", alt="unpopulated pcb">
+        <p>
+            The PCBs were cheap from China, but they looked pretty good. The gold ENIG finish would have looked nicer, but would have been more expensive. 
+            Also, as you can probably tell, this PCB is kind of a 3-in-1 to save costs. I might write up articles for those other two as well at some point. Currently I have 
+            not populated them, and I have not tested them yet since I ran out of connectors.
+        </p>
+        <p>
+            I then proceeded 
+            to apply solder paste with the syringe and place the components. I am also not in a place where I have easy or convenient access to a reflow oven, and I discovered
+            that with a little care, you can actually just use an electric stovetop to reflow your PCBs. I laid a few layers of aluminum foil (conveniently doesn't stick to solder!)
+            on the heater coils, and turned the heat to medium. In 2-3 minutes, the PCB got hot enough to reflow the solder paste. Also, in the past I have made the mistake of 
+            only reflowing the SMD components and trying to hand solder the SMA connectors. That is a bad idea because the ground planes and the connector all have huge thermal mass,
+            so it is very difficult to solder it well with an iron, especially if your iron is rather low powered, like my TS100. 
+        </p>
+        <img src="kitchen.png", alt="cooking pcbs on the stove">
+        <p>
+            A way to kind of judge how long it might take is to put a small droplet of water on the PCB away from any components. When the water boils off, you can kind of 
+            extrapolate how long the reflowing will take, considering it will reflow at around 200 degrees Celsius for lead-free solder paste.
+        </p>
+        <p>
+            Anyways, the stove worked and this is the finished PCB. 
+        </p>
+        <img src="assembled-pcb.png", alt="assembled-pcb">
+        <p>
+            And here is the spectrum of the output, with a 20 dB attenuator. 
+        </p>
+        <img src="output-spectrum.png", alt="output spectrum">
+        <p>
+            The frequency turned out to be around 8 GHz rather than the intended 10. I will need to investigate why this is the case, but my guess is that the dielectric 
+            constant of the FR4 is not constant with frequency, and at high frequencies it dropped a lot lower than the value I was using for the simulations. 
+        </p>
+        <p>
+            However, the output power was really good at around +3 dBm. This is pretty decent considering the circuit was running on 2.5V at less than 10 mA. 
+        </p>
+        <p>
+            Overall, I think this experiment was a success, and I will probably try to tweak the PCB so that it ends up actually being 10 GHz.
+        </p>
     </div>
     <script src="/page_template.js"></script>
 </body>
