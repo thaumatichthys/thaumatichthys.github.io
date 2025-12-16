@@ -23,8 +23,8 @@
             December, 2025
         </p>
         <p>
-            I wanted to make a flyback converter using the LM5155 for use as a nixie tube power supply. A boost converter would require duty cycles very close 
-            to 1 for a high input/output ratio, but a flyback can use a transformer with a large winding ratio to add an extra multiplier to the output voltage.
+            I wanted to make a flyback converter for use as a nixie tube power supply. The reason for a flyback is because a boost converter would require duty cycles very close 
+            to 100% for a high input/output ratio, but a flyback can use a transformer with a large winding ratio to add an extra multiplier to the output voltage.
             Thus, it can produce high output voltages with a reasonable duty cycle.
         </p>
         <p>
@@ -659,6 +659,172 @@
                 \boxed{L_{\text{total}}(s) = (\frac{D V_{in}^2 }{f_{sw} L_{prim} V_o} )(\frac{R_L}{1 + s R_L C_o}) (\frac{R_{fbb}}{R_{fbb} + R_{fbt}}) (\frac{(0.142) (0.002)(1 + s R_{\text{comp}} C_{\text{comp}})}    {(s^2 C_{\text{comp}} C_{hf} R_{\text{comp}} + s (C_{\text{comp}} + C_{hf})) (\frac{R_s V_{in}}{f_{sw} L_{\text{prim}}} + 0.040)})}
             \) &nbsp;&nbsp; (DCM flyback converter)
         </p>
+        <p>
+            This can then be plotted in a graphing calculator of some kind. The input values are as follows.
+        </p>
+        <p>
+            Design values
+        </p>
+        <p>
+            <ul>
+                <li>
+                    Switching frequency:
+                    \(
+                        f_{sw} = 100000
+                    \)
+                </li>
+                <li>
+                    Primary coil inductance:
+                    \(
+                        L_{\text{prim}} = 10*10^{-6}
+                    \)
+                </li>
+                <li>
+                    Output voltage:
+                    \(
+                        V_o = 200
+                    \)
+                </li>
+                
+                <li>
+                    Output capacitance:
+                    \(
+                        C_o = 1.44*10^{-6}
+                    \)
+                </li>
+                <li>
+                    Feedback resistor divider bottom:
+                    \(
+                        R_{fbb} = 10000
+                    \)
+                </li>
+                <li>
+                    Feedback resistor divider top:
+                    \(
+                        R_{fbt} = 2*10^6
+                    \)
+                </li>
+                <li>
+                    Current sense resistor:
+                    \(
+                        R_s = 13*10^{-3}
+                    \)
+                </li>
+            </ul>
+        </p>
+        <p>
+            And this is a "middle of the range" operating point of 20 mA output. (This is to try to get a closer approximation of the entire loading range.
+            In reality I ran the simulation for various loads and not just this "one size fits all" operating point.)
+        </p>
+        <p>
+            <ul>
+                <li>
+                    Duty cycle:
+                    \(
+                        D = 0.236
+                    \) &nbsp;&nbsp; (Calculated from previously derived formula)
+                </li>
+                <li>
+                    Input voltage:
+                    \(
+                        V_{in} = 12
+                    \)
+                </li>
+                <li>
+                    Load resistance:
+                    \(
+                        R_L = 10000
+                    \)
+                </li>
+            </ul>
+        </p>
+        <p>
+            I didn't bother writing an optimizer for this thing. I kinda just played around with the RC compensation values until I got a good phase margin and 
+            crossover frequency across a good range of operating points. I tried to pay attention to the cases where the load was small, as well as when it was maximum.
+        </p>
+        <p>
+            Eventually, I came up with these values:
+        </p>
+        <p>
+            <ul>
+                <li>
+                    \(
+                        C_{\text{comp}} = 22nF
+                    \)
+                </li>
+                <li>
+                    \(
+                        R_{\text{comp}} = 22k \Omega
+                    \)
+                </li>
+                <li>
+                    \(
+                        C_{\text{HF}} = 220pF
+                    \)
+                </li>
+            </ul>
+        </p>
+        <p>
+            And at last, the simulation outputs this bode plot of the open loop transfer function.
+        </p>
+        <img src="bode-plot.png">
+        <p>
+            At these conditions, the flyback converter should have a phase margin of 78.8 degrees and a crossover frequency of 3013.4 Hz.
+        </p>
+        <h3>
+            LTSpice Simulation
+        </h3>
+        <p>
+            Texas Instruments originally only provided a model for PSPICE, for use with their "TINA-TI" simulator software. This software is a bit terrible to use,
+            but thankfully a user "eetech00" provided a model that works for LTSpice, posted on <a href="https://forum.allaboutcircuits.com/threads/error-simulating-lm5155-boost-convertor-in-ltspice.179564/page-2"
+            target="_blank">this forum thread</a>.
+        </p>
+        <img src="ltspice-1.png">
+        <p>
+            I drew up the schematic using the calculated part values (apart from the MOSFET diode, and soft start; I wanted it to simulate faster). It appears to work well with various load resistors.
+            However, this was with a perfect coupling factor of k = 1 for the transformer. In real life, this is not the case, and there will be a leakage inductance. 
+        </p>
+        <img src="transformer-datasheet.png">
+        <p>
+            The datasheet lists a leakage inductance of 0.3 microhenries.
+        </p>
+        <p>
+            We know that \( L_{\text{leak}} = (1 - k^2) L_{\text{prim}} \)
+        </p>
+        <p>
+            So \( k = \sqrt{1 - \frac{L_{\text{leak}}}{L_{\text{prim}}}} \)
+        </p>
+        <p>
+            In our case, \( L_{\text{leak}} = 0.3 \mu H \), and \( L_{\text{prim}} = 10 \mu H \). So \( k = 0.98488578018 \).
+        </p>
+        <p>
+            Zooming into the MOSFET drain voltage, we can see that as of current, there is quite a bit of ringing from the leakage inductance and the parasitic capacitance 
+            of the MOSFET. This is ringing up to quite a high voltage, so it is best to suppress this. 
+        </p>
+        <img src="ltspice-2.png">
+        <p>
+            The popular method of doing this for flyback converters is to use something called an RCD snubber. This is basically an RC circuit coupled with a schottky diode. 
+            The function of the three components is as follows: The diode only allows the high voltage spikes to pass through it, and the capacitor acts as a low impedance 
+            to shunt the voltage spikes. The resistor will slowly discharge the capacitor, preventing its voltage from becoming too high.
+        </p>
+        <p>
+            In terms of design, the RC time constant of this circuit should be substantially lower than the switching frequency. In the end though, I actually decided 
+            to swap out the resistor with a zener diode of around 40-50V. The resistor's purpose is just to burn power, and it should work the same way as a zener, 
+            but the issue is that if the simulation is inaccurate, then the steady state voltage across the resistor might end up being completely off from the simulation, 
+            which might end up damaging the MOSFET if the voltage gets too high. A zener diode would burn power in the same way, but it will only start dissipating power 
+            once it gets to a certain voltage. I still kept the capacitor though, since it likely has a lower ESR than the zener diode, and it will help absorb the brief pulses 
+            of high current from the leakage inductance.
+            
+            Here I decided not to go through much 
+            calculations, but just plug it into LTSpice and play around with the values. 
+        </p>
+        <img src="zcd-snubber.png">
+        <p>
+            I found that a 45V zener with a 220nF capacitor seems to work well enough with the chosen MOSFET, which has a maximum drain-source voltage of 80V.
+            The ZCD snubber limits the voltage to around 60V. The zener burns about 0.64W during startup, but this drops down to about 0.32W during normal operation 
+            at full load.
+        </p>
+        <h3>PCB Layout</h3>
     </div>
     <script src="/page_template.js"></script>
 </body>
