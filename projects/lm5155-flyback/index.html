@@ -273,20 +273,11 @@
             drop to zero, so in that case the inductor does need to be included in the model.
         </p>
         <p>
-            Here, the duty cycle to output transfer function is as follows:
+            Here, the output voltage as a function of duty cycle is as follows:
         </p>
         <p>
             \(
-                G_{\text{flyback}}(s) = A_{\text{flyback}} \frac{R_L}{1 + s R_L C_o} 
-            \) &nbsp;&nbsp; where A is a constant.
-        </p>
-        <p>
-            Side note: I sometimes reuse variable letters without thinking, so if you see the same letter appear elsewhere that seemingly isn't related, 
-            it probably actually isn't related and I just unfortunately reused it.
-        </p>
-        <p>
-            \(
-                A_{\text{flyback}} = I_{out} = \frac{D^2 V_{in}^2 }{2 f_{sw} L_{prim} V_o}
+                V_o(s) = I_{out} \frac{R_L}{1 + s R_L C_o} 
             \)
         </p>
         <p>
@@ -294,8 +285,22 @@
         </p>
         <p>
             \(
-                G_{\text{flyback}}(s) = \frac{D^2 V_{in}^2 }{2 f_{sw} L_{prim} V_o} \frac{R_L}{1 + s R_L C_o} 
-            \) &nbsp;&nbsp; (Transfer function of output voltage / duty cycle)
+                V_o(s) = \frac{D^2 V_{in}^2 }{2 f_{sw} L_{prim} V_{o0}} \frac{R_L}{1 + s R_L C_o} 
+            \) &nbsp;&nbsp; (Where \( V_{o0} \) is the approximate value of the output voltage as a constant)
+        </p>
+        <p>
+            Since want the linearized small signal variation of the output voltage as a function of small signal variation of duty cycle, we can basically calculate the 
+            partial derivative of output voltage with duty cycle.
+        </p>
+        <p>
+            \(
+                \frac{d V_o(s)}{d D} = \frac{D V_{in}^2 }{f_{sw} L_{prim} V_{o0}} \frac{R_L}{1 + s R_L C_o} = \frac{\hat{v}_o}{\hat{d}} 
+            \) &nbsp;&nbsp; (Small signal transfer function of output voltage / duty cycle)
+        </p>
+        <p>
+            \(
+                G_{\text{flyback}}(s) = \frac{D V_{in}^2 }{f_{sw} L_{prim} V_{o0}} \frac{R_L}{1 + s R_L C_o}
+            \)
         </p>
         <h4>
             Finding the duty cycle as a function of \( V_{fb} \)
@@ -478,7 +483,7 @@
         </p>
         <p>
             \( 
-                \boxed{L_{\text{total}}(s) = (\frac{D^2 V_{in}^2 }{2 f_{sw} L_{prim} V_o} )(\frac{R_L}{1 + s R_L C_o}) (\frac{R_{fbb}}{R_{fbb} + R_{fbt}}) (\frac{(0.142) (0.002)(1 + s R_{\text{comp}} C_{\text{comp}})}    {(s^2 C_{\text{comp}} C_{hf} R_{\text{comp}} + s (C_{\text{comp}} + C_{hf})) (\frac{R_s V_{in}}{f_{sw} L_{\text{prim}}} + 0.040)})}
+                \boxed{L_{\text{total}}(s) = (\frac{D V_{in}^2 }{f_{sw} L_{prim} V_o} )(\frac{R_L}{1 + s R_L C_o}) (\frac{R_{fbb}}{R_{fbb} + R_{fbt}}) (\frac{(0.142) (0.002)(1 + s R_{\text{comp}} C_{\text{comp}})}    {(s^2 C_{\text{comp}} C_{hf} R_{\text{comp}} + s (C_{\text{comp}} + C_{hf})) (\frac{R_s V_{in}}{f_{sw} L_{\text{prim}}} + 0.040)})}
             \) &nbsp;&nbsp; (DCM flyback converter)
         </p>
         <p>
@@ -651,8 +656,8 @@
         </p>
         <p>
             \( 
-                \boxed{L_{\text{total}}(s) = (\frac{D^2 V_{in}^2 }{2 f_{sw} L_{prim} V_o} )(\frac{R_L}{1 + s R_L C_o}) (\frac{R_{fbb}}{R_{fbb} + R_{fbt}}) (\frac{(0.142) (0.002)(1 + s R_{\text{comp}} C_{\text{comp}})}    {(s^2 C_{\text{comp}} C_{hf} R_{\text{comp}} + s (C_{\text{comp}} + C_{hf})) (\frac{R_s V_{in}}{f_{sw} L_{\text{prim}}} + 0.040)})}
-            \) &nbsp;&nbsp; (from before)
+                \boxed{L_{\text{total}}(s) = (\frac{D V_{in}^2 }{f_{sw} L_{prim} V_o} )(\frac{R_L}{1 + s R_L C_o}) (\frac{R_{fbb}}{R_{fbb} + R_{fbt}}) (\frac{(0.142) (0.002)(1 + s R_{\text{comp}} C_{\text{comp}})}    {(s^2 C_{\text{comp}} C_{hf} R_{\text{comp}} + s (C_{\text{comp}} + C_{hf})) (\frac{R_s V_{in}}{f_{sw} L_{\text{prim}}} + 0.040)})}
+            \) &nbsp;&nbsp; (DCM flyback converter)
         </p>
     </div>
     <script src="/page_template.js"></script>
