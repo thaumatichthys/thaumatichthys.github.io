@@ -445,7 +445,7 @@
         </p>
         <p>
             \(
-                C_{\text{LM5155}}(s) = \frac{(0.142) (0.002)(1 + s R_{\text{comp}}) C_{\text{comp}}}    {(s^2 C_{\text{comp}} C_{hf} R_{\text{comp}} + s (C_{\text{comp}} + C_{hf})) (\frac{R_s V_{in}}{f_{sw} L_{\text{prim}}} + 0.040)}
+                C_{\text{LM5155}}(s) = \frac{(0.142) (0.002)(1 + s R_{\text{comp}} C_{\text{comp}})}    {(s^2 C_{\text{comp}} C_{hf} R_{\text{comp}} + s (C_{\text{comp}} + C_{hf})) (\frac{R_s V_{in}}{f_{sw} L_{\text{prim}}} + 0.040)}
             \)
         </p>
 
@@ -478,7 +478,7 @@
         </p>
         <p>
             \( 
-                \boxed{L_{\text{total}}(s) = (\frac{D^2 V_{in}^2 }{2 f_{sw} L_{prim} V_o} )(\frac{R_L}{1 + s R_L C_o}) (\frac{R_{fbb}}{R_{fbb} + R_{fbt}}) (\frac{(0.142) (0.002)(1 + s R_{\text{comp}}) C_{\text{comp}}}    {(s^2 C_{\text{comp}} C_{hf} R_{\text{comp}} + s (C_{\text{comp}} + C_{hf})) (\frac{R_s V_{in}}{f_{sw} L_{\text{prim}}} + 0.040)})}
+                \boxed{L_{\text{total}}(s) = (\frac{D^2 V_{in}^2 }{2 f_{sw} L_{prim} V_o} )(\frac{R_L}{1 + s R_L C_o}) (\frac{R_{fbb}}{R_{fbb} + R_{fbt}}) (\frac{(0.142) (0.002)(1 + s R_{\text{comp}} C_{\text{comp}})}    {(s^2 C_{\text{comp}} C_{hf} R_{\text{comp}} + s (C_{\text{comp}} + C_{hf})) (\frac{R_s V_{in}}{f_{sw} L_{\text{prim}}} + 0.040)})}
             \) &nbsp;&nbsp; (DCM flyback converter)
         </p>
         <p>
@@ -490,21 +490,170 @@
         <h4>
             Current sense resistor selection
         </h4>
+        <p>
+            We can base this off the peak current limit in the primary coil. From previous calculations, at 90 mA output and 12V input, the maximum primary 
+            current will be approximately 6A. It is good to add a margin of error to this current limit, so I will use a 30% margin. 
+        </p>
+        <p>
+            \(
+                I_{\text{pk, prim, set}} = 6A (1 + 0.3) = 7.8A
+            \)
+        </p>
+        <p>
+            Now from previous calculations, we will not use external slope compensation. The LM5155 adds some slope compensation by default, but this is only added 
+            to the path that goes to the PWM comparator, and the current limit comparator sees the uncompensated \( V_{CS} \). From the datasheet, we can see that 
+            the threshold voltage \( V_{\text{CLTH}} = 100mV \).
+        </p>
+        <p>
+            \(
+                I_{\text{pk, prim, set}} = R_s V_{\text{CLTH}}
+            \)
+        </p>
+        <p>
+            \(
+                R_s = \frac{V_{\text{CLTH}}}{I_{\text{pk, prim, set}}} = \frac{0.1}{7.8} = 12.8 m \Omega
+            \)
+        </p>
+        <p>
+            We can use the closest standard value which is \( 13 m \Omega \).
+        </p>
         <h4>
             MOSFET selection
         </h4>
+        <p>
+            This one is pretty straightforward. Basically, we just pick one that has a sufficient maximum drain-source voltage rating and has good specs otherwise. 
+            The reflected voltage that appears on the primary coil will be approximately the output voltage scaled by the transformer ratio. This voltage is then 
+            added to the input voltage. 
+        </p>
+        <p>
+            \(
+                V_{\text{pk, DS}} = n V_o + V_{in} = 0.1 (200V) + 12V = 32V
+            \)
+        </p>
+        <p>
+            We can pick a MOSFET with a maximum drain-source voltage of something like 50V or 60V.
+        </p>
+        <p>
+            After a quick search on DigiKey, I found the <a href="https://www.onsemi.com/pdf/datasheet/nttfs5d6n08xl-d.pdf", target="_blank">NTTFS5D6N08XL</a>. This is a 
+            pretty standard N channel MOSFET with a maximum Vds of 80V, and a good Rds(on) of 5.3 m\(\Omega\). Of course these are just advertising specs so they might be 
+            dubious but its probably good enough. This one also has a relatively low reverse transfer capacitance of 14 pF, which is desirable, since this 
+            reverse transfer capacitance (Miller capacitance) will get amplified by the gain of the MOSFET during switching, and will bog down the gate voltage slew rate 
+            if its too large.
+        </p>
         <h4>
             Diode selection
         </h4>
+        <p>
+            Ideally for a switching power supply, a schottky diode would be used. This is because schottky diodes have a really high switching speed as well as low forward 
+            voltage drop. Their drawback is that they have a rather high reverse leakage current, and they also usually don't come in super high voltage ratings. In the end 
+            I decided that the cost wasn't super important here, so I just used the <a href="https://www.smc-diodes.com/propdf/S4D02120A%20S4D02120E%20N2369%20REV.A.pdf", 
+            target="_blank">S4D02120E</a> SiC schottky diode. This thing is rated for 1200V at 2A which is way more than enough.
+        </p>
         <h4>
             Output capacitor selection 
         </h4>
+        <p>
+            The output capacitor basically sets the voltage ripple on the output. We can assume a constant output current, and since \( \frac{dV}{dt} = \frac{I_o}{C_o} \), 
+            we can find that the amplitude of output fluctuations are equal to \( V_{\text{ripple}} = T_{\text{period}} \frac{dV}{dt} = \frac{I_o}{C_o f_{sw}} \)
+        </p>
+        <p>
+            So for a given \( V_{\text{ripple}} \),
+        </p>
+        <p>
+            \(
+                C_o = \frac{I_o}{V_{\text{ripple}} f_{sw}}
+            \)
+        </p>
+        <p>
+            The ripple voltage doesn't matter too much for a nixie tube driver, but I will set it to be 1V. With 90 mA output current and 100 kHz switching frequency, 
+            this gives \( 0.9 \mu F \). This is still pretty small, so I will use three \( 0.47 \mu F \) ceramic capacitors in parallel to make \( 1.41 \mu F \) total.
+        </p>
         <h4>
             Feedback resistor selection
         </h4>
+        <p>
+            Texas Instruments conveniently left out the bias current of the FB error amplifier from the datasheet. Thankfully, there is a particular 
+            <a href="https://e2e.ti.com/support/power-management-group/power-management/f/power-management-forum/936401/lm5155-are-there-any-maximum---limits-on-bias-current-into-fb-pin-8" target="_blank">
+                forum post
+            </a> where someone mentions that the bias current is "in the nA range". From that information, as long as the current through the FB is significantly larger 
+            (like 100x or something) than this, it will be okay. I will just use 2 MOhm for the top resistor, and since the reference voltage for the LM5155 is 1V, the 
+            bottom resistor can basically be something like 10k for an approximately 20:1 ratio. 
+        </p>
         <h4>
-            Misc stuff selection
+            Frequency setting resistor
         </h4>
+        <p>
+            For this one just plug it into the formula. 
+        </p>
+        <p>
+            \(
+                R_T = \frac{2.21 * 10^{10}}{f_{sw}} = 221000 \Omega
+            \)
+        </p>
+        <p>
+            This is really close to 220k so I will just use that.
+        </p>
+        <h4>
+            UVLO resistor divider 
+        </h4>
+        <p>
+            The UVLO pin has a 1.5V rising edge threshold, and a 1.45V falling edge threshold (50 mV hysteresis), as well as a 5 microamp hysteresis that gets switched 
+            on when the pin is high. It could be potentially useful for the flyback converter to work at 5V, so I will set the rising edge threshold to around 4.5V. 
+        </p>
+        <p>
+            I will set \( R_{\text{uvlo, b}} \) to 5kOhms and \( R_{text{uvlo, t}} \) to 10k. This should yield a 4.5V UVLO threshold for the rising edge, and this should 
+            add an additional 16.7 mV of hysteresis when combined with the 5 microamp current source.
+        </p>
+        <h4>Soft start</h4>
+        <p>
+            The soft start time is basically set by the time it takes for the soft start capacitor to be charged to \( V_{\text{ref}} \) by the 10 microamp soft start 
+            current source. We want this time to be equal to or greater than the time it would take to charge the output capacitor to the output voltage while not 
+            overloading the rest of the power supply. 
+        </p>
+        <p>
+            The time taken for the output capacitor to be charged is as follows:
+        </p>
+        <p>
+            \(
+                T_{\text{charge}} = \frac{I_{\text{max, out}}}{C_o V_o} 
+            \)
+        </p>
+        <p>
+            And a similar equation defines the time taken for the soft start capacitor to charge.
+        </p>
+        <p>
+            \(
+                T_{\text{ss}} = \frac{I_{\text{ss}}}{C_{\text{ss}} V_{\text{ref}}} = \frac{10*10^{-6} A}{C_{\text{ss}} 1.0V} = \frac{10^{-5} A}{C_{\text{ss}}}
+            \)
+        </p>
+        <p>
+            And now we can just set these equal and solve for \( C_{\text{ss}} \).
+        </p>
+        <p>
+            \(
+                \frac{I_{\text{ss}}}{C_{\text{ss}} V_{\text{ref}}} = \frac{I_{\text{max, out}}}{C_o V_o} 
+            \)
+        </p>
+        <p>
+            \(
+                C_{\text{ss}} = \frac{I_{\text{ss}} C_o V_o}{I_{\text{max, out}}  V_{\text{ref}}} = \frac{10^{-5} C_o V_o}{I_{\text{max, out}}}
+            \)
+        </p>
+        <p>
+            Plugging in 200V, 90mA, and 1.41 microfarads, we get \( C_{\text{ss}} = 31nF \). Since we don't need the startup time to be as fast as possible, 
+            I will just use a \(100nF\) capacitor for \(C_{\text{ss}} \). 
+        </p>
+        <h4>
+            Calculating compensation RC values
+        </h4>
+        <p>
+            Now that we have all the other values, we can plug the stuff into here.
+        </p>
+        <p>
+            \( 
+                \boxed{L_{\text{total}}(s) = (\frac{D^2 V_{in}^2 }{2 f_{sw} L_{prim} V_o} )(\frac{R_L}{1 + s R_L C_o}) (\frac{R_{fbb}}{R_{fbb} + R_{fbt}}) (\frac{(0.142) (0.002)(1 + s R_{\text{comp}} C_{\text{comp}})}    {(s^2 C_{\text{comp}} C_{hf} R_{\text{comp}} + s (C_{\text{comp}} + C_{hf})) (\frac{R_s V_{in}}{f_{sw} L_{\text{prim}}} + 0.040)})}
+            \) &nbsp;&nbsp; (from before)
+        </p>
     </div>
     <script src="/page_template.js"></script>
 </body>
