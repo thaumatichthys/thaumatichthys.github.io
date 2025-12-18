@@ -22,6 +22,7 @@
         <p>
             December, 2025
         </p>
+        <img src="pcb-1.png">
         <p>
             I wanted to make a flyback converter for use as a nixie tube power supply. The reason for a flyback is because a boost converter would require duty cycles very close 
             to 100% for a high input/output ratio, but a flyback can use a transformer with a large winding ratio to add an extra multiplier to the output voltage.
@@ -522,6 +523,17 @@
         <p>
             We can use the closest standard value which is \( 13 m \Omega \).
         </p>
+        <p>
+            As for the power rating, I am not going to integrate the current to get a proper average power since it probably isn't worth the effort but 
+            using the max current of 6A, \( P = I^2 R \) gives around half a watt, which is quite a large overestimate. In this case, the pulse rating of the resistor 
+            probably ends up being more important than the average power rating.
+        </p>
+        <p>
+            Also, in the past I have had a buck converter fail due to an (otherwise properly spec'ed!) shunt resistor immediately failing open within a few minutes. I think 
+            it is a bad idea to use thin/thick film resistors for something like this, and since cost isn't super important for this project, I decided to splurge on 
+            a 13 mOhm metal element resistor, <a href="https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/5706/D1MPA%20Series.pdf", target="_blank">
+                D1MPAA1206DR013FA-T4</a>.
+        </p>
         <h4>
             MOSFET selection
         </h4>
@@ -825,6 +837,27 @@
             at full load.
         </p>
         <h3>PCB Layout</h3>
+        <p>
+            Finally now I could actually design the PCB. First I redrew the schematic with all the proper part values and footprints assigned. It is mostly the same as before, except for some small stuff like the snubber circuit and 
+            an indicator LED.
+        </p>
+        <img src="nixie-supply-2-actual.svg">
+        <p>
+            TI provides some examples of the ways the LM5155 can be routed. The example is of a boost converter instead of a flyback, but it ended up being marginally 
+            useful.
+        </p>
+        <img src="pcb-example.png">
+        <p>
+            And finally, here is the PCB I routed. I made some effort to make the switching node not super massive and also to try to make the current loop not super 
+            big. It isn't perfect, but I am hoping that it works out well enough.
+        </p>
+        <img src="pcb-12.png">
+        <h3>
+            Testing
+        </h3>
+        <p>
+            As of writing this, I have not assembled the boards yet. I will fill out this section after the boards are ready to test.
+        </p>
     </div>
     <script src="/page_template.js"></script>
 </body>
