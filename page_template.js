@@ -12,6 +12,10 @@ const string_template = `<!DOCTYPE html>
 	<title id="page-tab-title">Thaumatichthys</title>
 	<link rel="icon" type="image/x-icon" href="/res/circle2.png">
 	<link href="/style.css" rel="stylesheet" type="text/css" />
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Corinthia:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
 </head>
 <body>
 	<div class="page">
@@ -21,19 +25,19 @@ const string_template = `<!DOCTYPE html>
 			</h1>
 			<div class="navbar-top"> <!-- I think the table looks better than an unordered list -->
 				<div class="navbar-top-cell">
-					<h3><a href="/mainpage/electronics/">Electronics</a></h3>
+					<p><a href="/mainpage/electronics/">Electronics</a></p>
 				</div>
 				<div class="navbar-top-cell">
-					<h3><a href="/mainpage/programming/">Programming</a></h3>
+					<p><a href="/mainpage/programming/">Programming</a></p>
 				</div>
 				<div class="navbar-top-cell">
-					<h3><a href="/mainpage/misc/">Misc</a></h3>
+					<p><a href="/mainpage/misc/">Misc</a></p>
 				</div>
 				<div class="navbar-top-cell">
-					<h3><a href="/mainpage/contact/">Contact</a></h3>
+					<p><a href="/mainpage/contact/">Contact</a></p>
 				</div>
 				<div class="navbar-top-cell">
-					<h3><a href="/mainpage/disclaimer/">Disclaimer</a></h3>
+					<p><a href="/mainpage/disclaimer/">Disclaimer</a></p>
 				</div>
 			</div>
 		</div>
