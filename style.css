@@ -1,9 +1,8 @@
 /* sets the parameters of the header. This includes the entire gray portion at the top. */
 .header {
 	/* set the font */
-	font-family: "Corinthia", cursive;
+	font-family: "Leelawadee UI", sans-serif;
 	font-size: larger;
-	/* font-family: 'Leelawadee UI'; */
 	/* sets the font colour */
 	color: white;
 	/* sets the header to dimgray */
@@ -318,8 +317,8 @@ img {
   display: block;     /* kills inline gaps */
   width: 100% !important;   /* fill the container */
   max-width: 100% !important; /* override global 70% */
-  aspect-ratio: 16 / 9;
-  object-fit:fill;
+  aspect-ratio: 3/2;
+  object-fit: cover;
   margin: 0;
 }
 

@@ -57,7 +57,7 @@ const string_template = `<!DOCTYPE html>
 
 		<div class="footer">
 			<!-- <h3>footer</h3> -->
-			<p>Thaumatichthys Pagidostomus</p>
+			<p>Thaumatichthys Pagidostomus (Max Xiang)</p>
 			<h4 class="navbar-bottom"><a href="/mainpage/disclaimer/">Disclaimer</a></h4>
 		</div>
 	</div>
