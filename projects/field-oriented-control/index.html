@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<noscript class="noJS">
+    <div style="font-family: Arial, Helvetica, sans-serif;">
+        <h1 style="color: #303040;">
+            Please enable JavaScript
+        </h1>
+        <p>
+            This site uses JS to run properly, please enable it in your browser
+        </p>
+    </div>
+    <img src="/res/sadface.png" alt="sadface">
+</noscript>
+
+<body>
+    <div hidden id="page-title">
+        Field Oriented Control for Brushless Three Phase Motors
+    </div>
+    <div hidden id="page-content">
+        <div class="includeMathJax"></div>
+        <p>
+            January 28, 2026
+        </p>
+        <p>
+            Don't mind the terrible drawings, I am drawing these in ms paint with a mouse and keyboard
+        </p>
+        <p>
+            Recently in a project class, we were tasked with building some kind of motor based servo actuator. It would be way easier and probably more practical to 
+            build an H bridge that drives a brushed DC motor along with an encoder and a PID loop to control the position. This would work, but I thought that 
+            it would be an interesting challenge to try to build a brushless servo controller that used Field Oriented Control (FOC).
+        </p>
+        <h3>Brushless 3-phase motor</h3>
+        <p>
+            This kind of motor has a few different names: BLDC motor, three phase brushless motor, permanent magnet synchronous motor, etc. Basically, it consists of an even number 
+            of permanant magnets attached to the rotor, and an integer multiple of three number of stator poles. These stator windings are connected in either a delta or a 
+            wye configuration, but the same controller can control both delta and wye motors. 
+        </p>
+        <img src="motor0.png">
+        <p>
+            The three phase motor can be simplified to the case of having three stator coils, and two rotor poles (one north and one south). 
+        </p>
+        <p>
+            The permanent magnet rotor will produce a B field vector in the direction of south-north. Lets call this vector \( \vec{B_{\text{rot}}} \). 
+        </p>
+        <p>
+            In addition, each of the coils will produce a B field vector along their axis, with a magnitude proportional to the current running through it.
+            Lets call the superposition of these three vectors \( \vec{B_{\text{sta}}} \). 
+        </p>
+        <p>
+            So now \( \vec{B_{\text{sta}}} \) is essentially a linear superposition of the three basis vectors which come from the physical angle of the stator coils. 
+        </p>
+        <p>
+            To be a bit more clear, the \( \vec{B_{\text{sta}}} \) vector can be more concretely defined as the follows:
+        </p>
+        <p>
+            \( 
+                \vec{B_{\text{sta}}} = k I_A \hat{a} + k I_B \hat{b} + k I_C \hat{c}
+            \)
+        </p>
+        <p>
+            where:
+        </p>
+        <blockquote>
+            <p>
+                \( I_A \), \( I_B \), \( I_C \) are the phase currents
+            </p>
+            <p>
+                \( k \) is some constant that relates the coil current to the B field intensity at some distance (we only care about direction here so don't worry too much about this)
+            </p>
+            <p>
+                and unit vectors \( \hat{a} = \begin{bmatrix} 1 \\ 0 \end{bmatrix} \), \( \hat{b} = \begin{bmatrix} \frac{\sqrt{3}}{2} \\ -\frac{1}{2} \end{bmatrix} \), 
+                and \( \hat{c} = \begin{bmatrix} -\frac{\sqrt{3}}{2} \\ -\frac{1}{2} \end{bmatrix} \) in a cartesian (X, Y) space
+            </p>
+        </blockquote>
+        <p>
+            Also, in the topic of motor control, people usually write \( \boldsymbol{\alpha} \) in place of X, and \( \boldsymbol{\beta} \) in place of Y.
+        </p>
+        <p>
+            I think this is a bit less confusing if you first think of all three coils as independant coils such that you can control each phase current 
+            independantly. In a real motor, these coils will be connected in a delta or wye configuration. Note that in this case, the manufacturer will 
+            ensure that the windings are wired in a way such that applying a three phase AC voltage to the coils will result in a rotating stator B field vector.
+        </p>
+        
+        <h3>FOC controller</h3>
+        <img src="foc-angles.png">
+        <p>
+            In a BLDC motor like this, there are basically three important vectors to think about.
+        </p>
+        <p>
+            <ul>
+                <li>
+                    Rotor magnetic field vector \( \vec{B_{\text{rot}}} \)
+                </li>
+                <li>
+                    Stator magnetic field vector \( \vec{B_{\text{sta}}} \)
+                </li>
+                <li>
+                    Applied voltage vector \( \vec{V_{\text{app}}} \)
+                </li>
+            </ul>
+        </p>
+        <p>
+            The rotor magnetic field vector is simply the direction the rotor is pointing.
+        </p>
+        <p>
+            The stator magnetic field vector is the direction of the superposition of the three individual phase B fields. This is the same direction as the 
+            phase of the three line currents, so it can also be called the stator current vector.
+        </p>
+        <p>
+            The applied voltage vector is the phase of the applied three phase voltage. During low rotation speeds, this is almost the same direction as the 
+            stator current vector, but generally the current vector will lag the voltage vector a little bit due to the motor inductance as well as back EMF.
+        </p>
+        <p>
+            Magnetic force from the stator coils is will basically try to pull the rotor magnets towards the opposite pole when energized, and away from the similar pole. 
+            This basically means that the torque is proportional to the sine of the angle difference between the stator magnetic field vector, and the rotor magnetic field vector.
+        </p>
+        <p>
+            <b>
+                The main idea of FOC is to move the applied voltage vector such that the the stator magnetic field vector is always perpendicular to the rotor magnetic field vector. 
+            </b>
+        </p>
+        <p>
+            This way, the controller maximises torque for a given phase current. The controller also sets the magnitude of the stator magnetic field by controlling 
+            the phase current magnitude, as well as direction.
+        </p>
+        <h4>Implementation of FOC</h4>
+        <p>
+            For FOC to be possible, in most cases, a few things are required of the controller board.
+        </p>
+        <p>
+            <ul>
+                <li>
+                    An absolute rotor angle sensor
+                </li>
+                <li>
+                    Current sensors for each motor phase
+                </li>
+                <li>
+                    PWM modulation of the 3-phase power inverter
+                </li>
+            </ul>
+        </p>
+        <h4>
+            SVPWM
+        </h4>
+        <p>
+            I think a good place to start is with SVPWM. Basically, this is a way to set the applied phase voltage vector. Cheap hobby grade electronic speed controllers 
+            usually drive the motor with a trapezoidal signal applied to the motor phases. This basically results in six points in the +- directions of the three, 
+            phase basis vectors. This works well for driving a motor cheaply and with good power at medium to high speeds. 
+        </p>
+        <img src="pwm-states.png">
+        <p>
+            With trapezoidal driving, the applied voltage vector is basically just set to the active states labelled 0-5 on the diagram, and the state just increments by one 
+            until it wraps around to zero again. This is relatively easy to do, and for RC aircraft and drones this is usually sufficient. But since the vector is 
+            moving in discrete states, the torque will drop off in six points around the circle, causing a noticeable sound as well as inconsistent torque.
+        </p>
+        <p>
+            SVPWM basically rapidly switches between two active states with a variable duty cycle so that the on average the voltage vector is somewhere between 
+            two active states. (Actually it switches between the two adjacent active states, as well as the two null states to modulate both direction and magnitude).
+        </p>
+        <p>
+            This basically results in an applied voltage vector that can be pointed in any direction, and rotated smoothly. Also, a bunch of youtube videos that 
+            try to describe FOC (such as the ones by "GreatScott", "Electronoobs", "I Got Distracted", and probably others) only actually describe SVPWM without going into 
+            any actual FOC.
+        </p>
+
+
+    </div>
+    <script src="/page_template.js"></script>
+</body>
