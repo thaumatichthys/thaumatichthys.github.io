@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<noscript class="noJS">
+    <div style="font-family: Arial, Helvetica, sans-serif;">
+        <h1 style="color: #303040;">
+            Please enable JavaScript
+        </h1>
+        <p>
+            This site uses JS to run properly, please enable it in your browser
+        </p>
+    </div>
+    <img src="/res/sadface.png" alt="sadface">
+</noscript>
+
+<body>
+    <div hidden id="page-title">
+        3D printed solenoid winding machine
+    </div>
+    <div hidden id="page-content">
+        <p>
+            March 2026
+        </p>
+        <p>
+            For a project course in my third year of electrical engineering at UBC, we had to build a robot that required a lot of solenoids. Our solenoid was built using mild steel
+            box section and rods, around a 3D printed armature. It requires quite a lot of turns of magnet wire, which can be annoying to wind by hand. 
+        </p>
+        <p>
+            To solve the issue of needing to spend 5 hours winding solenoids, I instead opted to spend 20 hours designing and building a coil winding machine. 
+        </p>
+        <img src="coil-winder.PNG">
+        <p>
+            This was designed in Solidworks and printed on a Bambu P1S, assuming tight-ish tolerances (0.2mm for moving parts). You may need to change the gear ratio depending on your wire gauge. 
+            In this case it was meant for 30 AWG enamelled copper wire. You are supposed to turn the crank clockwise when looking from the side it is attached to.
+        </p>
+        <p>
+            Some features:
+        </p>
+        <ul>
+            <li>
+                Even distribution of wire using a sliding carriage powered by a heart shaped cam follower and way too many gears
+            </li>
+            <li>
+                Counter for layers of wire via a pawl and ratchet attached to the carriage
+            </li>
+            <li>
+                Adjustable screw for securing the solenoid armature using an M4 screw that pushes it together
+            </li>
+            <li>
+                """adjustable""" wire tensioning
+            </li>
+        </ul>
+        <p>
+            If you want to make one for yourself, <a href="coil-winder.zip" download target="_blank">here are the design files</a> (Solidworks). Note there are some dead files 
+            in there, so just open the assembly and see which ones are actually in use. Don't print the models of the bearings, they are just models.
+        </p>
+        <p>
+            Parts you will need:
+        </p>
+        <ul>
+            <li>
+                Several M3 screws of various length
+            </li>
+            <li>
+                Several M4 screws of various length
+            </li>
+            <li>
+                3x 27mm OD x 20mm ID x 4mm H ball bearings
+            </li>
+            <li>
+                1x rubber band 
+            </li>
+        </ul>
+        <p>
+            I am sure you can figure out how to assemble it. Just open the solidworks assembly if you want to see how it fits together.
+        </p>
+        <p>
+            If you want to just drag a bunch of stuff into your slicer and click print, then <a href="coil-winder-stl.zip" download target="_blank">
+                here are all the STL files</a>. Note that this has repeats of all the parts, so you can directly drag everything in and it should print in the right quantities.
+        </p>
+    </div>
+    <script src="/page_template.js"></script>
+</body>
