@@ -169,10 +169,166 @@
             null states, and when the three states are not the same, this is an active state. 
         </p>
         <p>
+            The process for actually calculating the SVPWM duty cycles is a bit involved. In implementation, this function is a pure math (static) function that does not need 
+            any past memory, and simply takes an input vector and returns three PWM numbers. An example of the function header in C could be something like:
+            void compute_svpwm_duty_cycle(float alpha, float beta, float* duty_a, float* duty_b, float* duty_c).
+        </p>
+        <p>
+            Either a lookup table or a mathematical derivation can be used. In my case I used the pure math one, though it is probably a lot slower than using an LUT.
+        </p>
+        <p>
+            The math goes as follows:
+        </p>
+        <ol>
+            <li>
+                Input - 2D vector (essentially two floats, alpha (x axis), and beta (y axis)).
+            </li>
+            <li>
+                Figure out which of the six sectors the input vector is in
+            </li>
+            <li>
+                After finding the sector, get its two adjacent basis vectors that are on either side of the sector.
+            </li>
+            <li>
+                Solve a 2x2 linear system to find the linear combination of these two basis vectors that makes up the input vector. This step outputs two numbers, which are the scaling coefficients of these basis vectors.
+            </li>
+            <li>
+                For each SVPWM sector, there are three states the PWM could be in - the two adjacent basis vectors, and a null vector. 
+                Based on the two coefficients from the previous step, and one minus the sum of those, find the fraction of time that the SVPWM state should dwell in for each of the states (three states total).
+            </li>
+            <li>
+                Map these three states into the three PWM phases based on the sector. Make sure to check that the PWM values are valid, so that you don't blow up your 
+                inverter or motor in case an invalid input comes in.
+            </li>
+            <li>
+                Output - three PWM duty cycles.
+            </li>
+        </ol>
+        <p>
+            A working (but not necessarily great) implementation is here.
+        </p>
+        <p class="codebox">
+    // computes duty cycles and puts them into output pointers. also returns the sector.
+int compute_svpwm_duty_cycle(float alpha, float beta, float* duty_a, float* duty_b, float* duty_c) {
+    // alpha, beta must be normalized to magnitude <= 1. The magnitude relative to 1 will be the percent power of PWM drive.
+
+    // SVPWM: https://youtu.be/Gj7qAlsq_m8?list=PLkILZn_GDXSVJzFvQ3r3_p4VBkLxUu2Rp
+    // full servo: https://youtu.be/ilN-DauXVFM?list=PLn8PRpmsu08qL-EG3DRMtRyokpXQJyhp7&t=100
+
+    int sector = compute_svpwm_sector(alpha, beta);
+
+    int sector_incr = sector + 1;
+    if (sector_incr >= 6) sector_incr -= 6;
+
+    // alpha = horizontal
+    const float basis_vectors_alpha[] = {
+        1.0f,
+        0.5f,
+        -0.5f,
+        -1.0f,
+        -0.5f,
+        0.5f
+    };
+    // beta = vertical
+    const float basis_vectors_beta[] = {
+        0.0f,
+        0.866025403784f,
+        0.866025403784f,
+        0.0f,
+        -0.866025403784f,
+        -0.866025403784f
+    };
+    // vector that forms the lower bound of the sector (positive angle meaning counter clockwise)
+    float alpha_lb = basis_vectors_alpha[sector];
+    float beta_lb = basis_vectors_beta[sector];
+    
+    // vector that forms the upper bound of sector
+    float alpha_ub = basis_vectors_alpha[sector_incr];
+    float beta_ub = basis_vectors_beta[sector_incr];
+    
+    // solve 2x2 system for linear combination of basis vectors
+    /*
+        alpha_lb*x + alpha_ub*y = alpha
+        beta_lb*x  + beta_ub*y  = beta
+    */
+    float inv_det = 1.0f / (alpha_lb * beta_ub - alpha_ub * beta_lb);
+    
+    float coeff_lb = (alpha * beta_ub - alpha_ub * beta) * inv_det;
+    float coeff_ub = (alpha_lb * beta - alpha * beta_lb) * inv_det;
+
+    // now compute the duty cycle from the vector
+    const float svpwm_scaling_factor = 0.866025403784f; // a required scaling factor for three phase SVPWM to map vector to duty cycle
+    
+    float time_frac_lb = coeff_lb * svpwm_scaling_factor;
+    float time_frac_ub = coeff_ub * svpwm_scaling_factor;
+    float time_frac_null = 1.0f - time_frac_lb - time_frac_ub;
+
+    float duty_always_off = 0.5f * time_frac_null;
+    if (duty_always_off < 0) duty_always_off = 0.0f; // for safety reasons
+    
+    float duty_modulated_upgoing = time_frac_ub + duty_always_off;
+    float duty_modulated_downgoing = time_frac_lb + duty_always_off;
+    float duty_always_on = 1.0f - duty_always_off;
+
+    // map the three PWM outputs to the correct channels based on sector
+    float duty_a_sectors[] = {
+        duty_always_on,
+        duty_modulated_downgoing,
+        duty_always_off,
+        duty_always_off,
+        duty_modulated_upgoing,
+        duty_always_on
+    };
+    float duty_b_sectors[] = {
+        duty_modulated_upgoing,
+        duty_always_on,
+        duty_always_on,
+        duty_modulated_downgoing,
+        duty_always_off,
+        duty_always_off
+    };
+    float duty_c_sectors[] = {
+        duty_always_off,
+        duty_always_off,
+        duty_modulated_upgoing,
+        duty_always_on,
+        duty_always_on,
+        duty_modulated_downgoing
+    };
+
+    *duty_a = duty_a_sectors[sector];
+    *duty_b = duty_b_sectors[sector];
+    *duty_c = duty_c_sectors[sector];
+
+    return sector;
+}
+        </p>
+        <p>
+            For context, if a unit vector (constant magnitude) with a constant rotation speed is fed into the SVPWM block, the three outputs will look something like this. (Just for illustration, ignore the axis scales).
+        </p>
+        <img src="svpwm-waveforms.png">
+        <p>
+            Note that it looks kind of vaguely like a three phase sine wave. A regular three phase sine wave can also effectively drive a motor with constant torque at any 
+            angle, but the issue is that it does not fully utilize the supply voltage. SVPWM can use the full voltage, which results in higher torque, essentially for free - only a firmware difference is required.
+        </p>
+        <h4>
+            Clarke transform
+        </h4>
+        <p>
+            This is basically another pure math block that takes a 3 phase current measurement (basically three floats) and turns it into an XY (alpha-beta) vector. 
+        </p>
+        <p>
+            Basically since the motor rotates on a 2D plane, having three phase vectors means there is one that is redundant. The Clarke transform is basically just a 
+            good way to remove that redundancy while also using it to reduce noise slightly by means of averaging three inputs into two outputs.
+        </p>
+        <p>
+            The formula is quite simple, basically a single 3x3 matrix multiplication, and then discard the last entry of the output vector.
+        </p>
+        <p>
             THIS SECTION IS UNFINISHED!
         </p>
 
-        <h4>
+        <!-- <h4>
             PID Controller
         </h4>
         <p>
@@ -310,7 +466,7 @@
             \(
                 y[n] = \frac{2 K_d}{(2 \tau + T)}(x[n] - x[n-1]) + \frac{2 \tau - T}{2 \tau + T} y[n-1]
             \)
-        </p>
+        </p> -->
     </div>
     <script src="/page_template.js"></script>
 </body>
