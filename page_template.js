@@ -80,6 +80,17 @@ function UpdatePage() {
 		codeBoxes[0].className = "codeBoxInst";
 	}
 	console.log(codeBoxes.length)
+
+	const imgBoxes = page_template.getElementsByClassName("imgbox");
+
+	const n_imgboxes = imgBoxes.length;
+
+	for (var i = 0; i < n_imgboxes; i++) {
+		imgBoxes[0].className = "imgBoxInst";
+	}
+	console.log(imgBoxes.length)
+
+
 	document.open();
 	document.documentElement.innerHTML = page_template.documentElement.innerHTML;
 	document.close();
@@ -100,8 +111,8 @@ function SetUpCodeBoxes() {
 	var buttonElements = new Array(length);
 	var contents = new Array(length);
 	var previousTimeoutID;
-	const hiddenButtonText = "(Expand)";
-	const shownButtonText = "(Hide)";
+	const hiddenButtonText = "(Expand Code)";
+	const shownButtonText = "(Hide Code)";
 	const transitionTime = 320;
 	for (var i = 0; i < collection.length; i++) {
 		newDivs[i] = document.createElement('div');
@@ -146,8 +157,62 @@ function SetUpCodeBoxes() {
 	}
 }
 
+function SetUpImgBoxes() {
+	var collection = document.getElementsByClassName("imgBoxInst");
+	const length = collection.length;
+	var newDivs = new Array(length);
+	var buttonElements = new Array(length);
+	var contents = new Array(length);
+	var previousTimeoutID;
+	const hiddenButtonText = "(Expand Images)";
+	const shownButtonText = "(Hide Images)";
+	const transitionTime = 320;
+	for (var i = 0; i < collection.length; i++) {
+		newDivs[i] = document.createElement('div');
+
+		newDivs[i].appendChild(collection[i].cloneNode(true));
+		collection[i].parentNode.replaceChild(newDivs[i], collection[i]);
+		newDivs[i].className = "imgBoxContent";
+		buttonElements[i] = document.createElement("div");
+		buttonElements[i].innerHTML = hiddenButtonText;
+		buttonElements[i].className = "imgBoxButton";
+		collection[i].style.transition = `opacity ${transitionTime / 1000}s ease-in-out`;
+
+		newDivs[i].prepend(buttonElements[i]);
+		contents[i] = buttonElements[i].nextElementSibling;
+		(function(i) {
+			buttonElements[i].addEventListener("click", function() {
+				console.log(i);
+				if (contents[i].style.opacity == 0) {
+					contents[i].style.height = "auto";
+					newDivs[i].style.height = "auto";
+					contents[i].style.opacity = 1;
+					buttonElements[i].innerHTML = shownButtonText;
+					contents[i].style.pointerEvents = "auto";
+					clearTimeout(previousTimeoutID);
+				} 
+				else {
+					contents[i].style.opacity = 0;
+					previousTimeoutID = setTimeout(function() {
+						contents[i].style.height = 0;
+						newDivs[i].style.height = "44px";
+					}, 
+					transitionTime);
+					contents[i].style.pointerEvents = "none";
+					buttonElements[i].innerHTML = hiddenButtonText;
+				}
+			});
+		})(i);
+		console.log(i);
+		contents[i].style.opacity = 0;
+		contents[i].style.height = 0;
+		newDivs[i].style.height = "44px";
+	}
+}
+
 UpdatePage();
 SetUpCodeBoxes();
+SetUpImgBoxes();
 
 var script = document.createElement('script');
 script.src = "https://www.googletagmanager.com/gtag/js?id=G-F13RJTEZ4T";

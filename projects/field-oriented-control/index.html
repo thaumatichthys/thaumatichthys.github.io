@@ -112,7 +112,7 @@
             stator current vector, but generally the current vector will lag the voltage vector a little bit due to the motor inductance as well as back EMF.
         </p>
         <p>
-            Magnetic force from the stator coils is will basically try to pull the rotor magnets towards the opposite pole when energized, and away from the similar pole. 
+            Magnetic force from the stator coils will basically try to pull the rotor magnets towards the opposite pole when energized, and away from the similar pole. 
             This basically means that the torque is proportional to the sine of the angle difference between the stator magnetic field vector, and the rotor magnetic field vector.
         </p>
         <p>
@@ -125,6 +125,10 @@
             the phase current magnitude, as well as direction.
         </p>
         <h4>Implementation of FOC</h4>
+        <p>
+            Here is the block diagram of the FOC controller. This is essentially the classic FOC block diagram, with an additional position PID controller.
+        </p>
+        <img src="foc-block-diagram.png">
         <p>
             For FOC to be possible, in most cases, a few things are required of the controller board.
         </p>
@@ -325,9 +329,264 @@ int compute_svpwm_duty_cycle(float alpha, float beta, float* duty_a, float* duty
             The formula is quite simple, basically a single 3x3 matrix multiplication, and then discard the last entry of the output vector.
         </p>
         <p>
-            THIS SECTION IS UNFINISHED!
-        </p>
+            \(
 
+                \begin{bmatrix}
+                \alpha \\
+                \beta \\
+                \gamma 
+                \end{bmatrix}
+
+                = \sqrt{\frac{2}{3}}
+
+                \begin{bmatrix}
+                1 & -\frac{1}{2} & -\frac{1}{2} \\
+                0 & \frac{\sqrt{3}}{2} & -\frac{\sqrt{3}}{2} \\
+                \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}}
+                \end{bmatrix}
+
+                \begin{bmatrix}
+                A \\
+                B \\
+                C 
+                \end{bmatrix}
+            \)
+        </p>
+        <p>
+            The name might sound intimidating but it is just a simple formula.
+        </p>
+        <p>
+            Note that there isn't an inverse Clarke transform. Some FOC block diagrams on the internet will have this, but in my case it is not necessary 
+            since the SVPWM block natively takes alpha and beta vectors already, and does not need them to be converted into three phase.
+        </p>
+        <h4>
+            Park transform
+        </h4>
+        <p>
+            This is another one that sounds intimidating but is actually very simple. All this is, is subtracting the angle of the hall sensor angle
+            from the sensed current angle to produce constant (constant in steady state) direct and quadrature current values. 
+            The only thing is to pay attention to the signs, or else the whole loop won't work properly.
+        </p>
+        <p>
+            \(
+                \begin{bmatrix} 
+                I_{\text{D, out}} \\
+                I_{\text{Q, out}} 
+                \end{bmatrix}
+
+                = 
+
+                \begin{bmatrix} 
+                \cos{\theta} & \sin{\theta} \\
+                -\sin{\theta} & \cos{\theta} 
+                \end{bmatrix}
+                
+                \begin{bmatrix} 
+                \alpha \\
+                \beta 
+                \end{bmatrix}
+            \)
+        </p>
+        <p>
+            Here, alpha and beta are the transformed current sensor measurements that are coming from the Clarke transform. Theta is the rotor angle measured 
+            by the hall sensor. Id and Iq are the direct and quadrature currents.
+        </p>
+        <h4>
+            Inverse Park transform
+        </h4>
+        <p>
+            This is quite literally the same thing as the Park transform but with the hall sensor angle flipped. This just adds the rotor angle back onto the Id and Iq vectors
+            to produce a synchronously spinning vector.
+        </p>
+        <p>
+            \(
+                \begin{bmatrix} 
+                \alpha_{\text{out}} \\
+                \beta_{\text{out}} 
+                \end{bmatrix}
+
+                = 
+
+                \begin{bmatrix} 
+                \cos{\theta} & -\sin{\theta} \\
+                \sin{\theta} & \cos{\theta} 
+                \end{bmatrix}
+                
+                \begin{bmatrix} 
+                I_D \\
+                I_Q
+                \end{bmatrix}
+            \)
+        </p>
+        <h4>
+            Current PI Controllers
+        </h4>
+        <p>
+            These are pretty generic proportional-integral controllers that keep the Id and Iq currents at their intended value. These also include 
+            a form of anti-windup for the integral term, as well as a low pass filter on the output to reduce audible noise. As shown, this is the 
+            block diagram of the controller. The P term basically does everything while the I term will slowly reduce the steady state error to zero.
+        </p>
+        <img src="pi-controller.png">
+        <p>
+            The low pass filter is a first order IIR LPF. In the diagram I just showed the continuous-time high level concept, but in reality it is of course 
+            a discrete time IIR. Its difference equation is as follows:
+        </p>
+        <p>
+            \(
+                y[n] = \frac{\omega_c}{\frac{1}{dt} + \omega_c} (x[n] - y[n-1]) \\
+            \)
+        </p>
+        <p>
+            Where dt is the time between controller updates.
+        </p>
+        <p>
+            In my case, the low pass filter is set to a cutoff frequency of around 150 Hz. In reality it should be around 5-10x higher than the RL constant 
+            of the motor phase inductance and resistance (which was about 160 Hz in my case), but here the audible noise was more of a concern than 
+            instantaneous current control, so I set it lower.
+        </p>
+        <h4>
+            Position PID Controller
+        </h4>
+        <p>
+            This is essentially the same thing as the PI controller, but an extra derivative term is added. This is to act as a damping term to reduce 
+            overshoots. This is actually quite important, because for the robot that we used the motor driver for, the rails had quite low friction 
+            and the "gantry" was quite heavy at almost 1 kg. This means that without this D term, the whole thing actually overshoots and oscillates significantly.
+        </p>
+        <img src="pid-controller.png">
+        <p>
+            Small note: In the diagrams shown, the PID controller's D term was drawn to take the error signal from after subtracting the setpoint and the feedback.
+            In reality, the P and I terms do take this input, but the D term alone takes only the feedback signal, without subtracting the setpoint. The purpose of this 
+            is because if the setpoint is set to a particular value, the step-like input will result in a huge derivative "kick" that could be dangerous or problematic. 
+            And since the derivative doesn't care about constant offsets anway, this solves the issue.
+        </p>
+        <p>
+            In the case of the robot, the PID gains were 5, 0.1, 0.25, respectively. And the output LPF was set to 50 Hz cutoff, with the derivative term LPF set to 20 Hz cutoff.
+            This seemed like a good combo to minimise overshoot but also have decent transient response. Also, the D term filter cutoff must be a very low frequency especially
+            for the robot we were building, since we had essentially a belt-driven gantry of around 700mm length. The belt would oscillate if the D term LPF was set any higher.
+        </p>
+        <h3>
+            Hardware
+        </h3>
+        <p>
+            Now for the fun stuff. For this driver, I rather quickly drew up a schematic and then routed a basic PCB in KiCAD in 1 day since we were in a rush.
+        </p>
+        <div class="imgbox">
+            <img src="schematic-mk1/bldc-mk1.svg">
+            <img src="schematic-mk1/bldc-mk1-Inverter.svg">
+            <img src="schematic-mk1/bldc-mk1-Sensors.svg">
+            <img src="schematic-mk1/pcb-2d.png">
+            <img src="schematic-mk1/pcb-3d.png">
+        </div>
+        <p>
+            In combination with this, I also made a small board for the TMAG5170 3D hall effect sensors. The selection process for these consisted of going on digikey's hall 
+            sensor section and sorting by lowest price, but in hindsight this might have actually been quite lucky. Some other groups in ELEC391 mentioned that their SPI 
+            hall sensors had issues with SPI data errors. The common Allegro chips appear to use a checksum, which is resistant to only 1 bit errors. The TMAG5170 has a 
+            full 4-bit CRC check, so it is a lot more robust. We never had any issues with SPI communication on these motor driver boards.
+        </p>
+        <div class="imgbox">
+            <img src="schematic-tmag5170/bldc-hall-encoder-board.svg">
+            <img src="schematic-tmag5170/pcb-2d.png">
+            <img src="schematic-tmag5170/pcb-3d-back.png">
+            <img src="schematic-tmag5170/pcb-3d-front.png">
+        </div>
+        <h4>Features</h4>
+        <p>
+            This driver featured 3x LM5109 bootstrapping half-bridge gate drivers from TI. It also included a NOT-NOR logic gate on each half bridge input to act as a 
+            hardware interlock to prevent both the high and low side MOSFETs from turning on at the same time. I thought this would be a valuable feature for a 
+            prototype board where the firmware was also being developed. The MOSFETs are 6x GSFD0650 N channel MOSFETs, which is a relatively cheap MOSFET featuring
+            66V max VDS, and 8.8 mOhm RDS(on). Good-Ark appears to be a smaller company compared to Vishay or Infineon, etc, and their MOSFETs are a bit cheaper but appear 
+            to be about as good. The board also features an INA4180A2 current sense amplifier (problematic later), as well as an external VGATE header which allows the 
+            inverter supply to drop all the way down to near 0V, where the VGATE header would be able to power the gate drivers with an external supply. There is also the 
+            pin headers for the TMAG5170 hall sensor board. The decoupling was distributed 24x 10uF MLCCs, with 2x bulk 470uF electrolytics.
+        </p>
+        <h4>
+            Assembly
+        </h4>
+        <p>
+            I did not spend the extra cost for SMT assembly by the PCB manufacturer. My preferred method of assembly for SMT boards is to place solder paste using a 
+            syringe onto the PCB, and then place the components manually using tweezers. 
+        </p>
+        <p>
+            Here are some pictures from the assembly process. I actually realized halfway through that I made a small mistake in wiring the bootstrap capacitors on the 
+            LM5109 MOSFET drivers. Thankfully I had caught this before I had actually started assembling it, so I could plan the rework.
+        </p>
+        <div class="imgbox">
+            <img src="schematic-mk1/assembly-1.jpg">
+            <img src="schematic-mk1/assembly-2.jpg">
+            <img src="schematic-mk1/assembly-3.jpg">
+            <img src="schematic-mk1/assembly-4.jpg">
+        </div>
+        <p>
+            I don't have a reflow oven or hot plate in my university dorm, so I decided to just use some layers of aluminum foil on the kitchen stove.
+            Don't worry, I am using lead free solder.
+        </p>
+        <p>
+            As you can see, on the LM5109 (8-SOIC ICs), there are some small botch capacitors, and that pad next to it is unpopulated. I will fix this in the next revision.
+        </p>
+        <h4>
+            Firmware and bringup
+        </h4>
+        <p>
+            I think the firmware took probably ten times longer than the hardware. Just getting the SVPWM and SPI communications took 2-3 days, but eventually it mostly 
+            worked.
+        </p>
+        <p>
+            At this stage I could have the motor spinning, but there was another fundamental flaw in the board design.
+            For FOC, phase current sensing is required. This can be done with either in-line sensors, or low-side sensors. I decided on low-side, since it makes the 
+            current amplifier circuitry more straightforward. I had however forgotten that if one uses low side sensing, the sensors must be bidirectional.
+            I had forgotten that, and used unidirectional differential amplifiers. In my case I used the INA4180A2. This meant that I basically could not use proper 
+            FOC on this board.
+        </p>
+        <img src="schematic-mk1/phase-current.png">
+        <p>
+            This was quite frustrating. I could actually get the motor to spin like this, but this was done by naively setting the SVPWM vector 90 degrees ahead of the sensed rotor 
+            vector, which does actually work but isn't nearly as high performing or efficient as FOC could be. I suppose designing the whole thing in one day (and also never
+            having designed a motor driver before!) leads to this kind of issue.
+        </p>
+        <video src="schematic-mk1/openloop.mp4" controls autoplay muted loop width="100%"></video>
+        <p>
+            The good thing however is that the MOSFET drivers (apart from the bootstrap connection typo), as well as the inverter stage worked perfectly. The MOSFETs
+            barely heat up at all while switching at around 50 kHz at a few amps, and SVPWM allowed for very smooth rotation (in open loop mode at this stage). The 
+            TMAG5170 also worked well with a small diametric NdFeB magnet.
+        </p>
+        <h4>
+            Revision 2
+        </h4>
+        <p>
+            So having identified the critical issues, I designed a second revision. The board looks quite visually similar, but most significantly, I changed the INA4180A2
+            unidirectional current sense amplifier to 3x INA181A1 bidirectional ones, and also added a 1V5 reference for the midpoint. I also moved the hall sensor connector
+            to the same side as the motor terminal block, and swapped out the dupont-style header for a Molex Picoblade. I also added a UVLO comparator, and filleted the 
+            corners! :D
+        </p>
+        <div class="imgbox">
+            <img src="schematic-mk2/bldc-mk2.svg">
+            <img src="schematic-mk2/bldc-mk2-Inverter.svg">
+            <img src="schematic-mk2/bldc-mk2-Sensors.svg">
+            <img src="schematic-mk2/pcb-2d.png">
+            <img src="schematic-mk2/pcb-3d.png">
+            <img src="schematic-mk2/pcb-assembled.jpg">
+        </div>
+        <p>
+            With this new PCB, the current sensing worked well. In hindsight the RP2350 was not a great choice for this project as its ADCs aren't really great, and FOC kind of 
+            relies on the ADCs to get current measurements. It did work good enough however.
+        </p>
+        <img src="schematic-mk2/phase-current.png">
+        <p>
+            Here is a plot of the phase current at a very low SVPWM power level. As you can see the phase current is a bit noisy, but is indeed a 3 phase sine wave.
+        </p>
+        <video src="schematic-mk2/foc-video.mp4" controls autoplay muted loop width="100%"></video>
+        <p>
+            In general this board worked well at this stage. Further developments were made to the firmware, and it was integrated into our ELEC391 robot. In this video 
+            the motor drivers are running at a maximum 3A setpoint for the FOC controller. In reality the driver can likely reach 10A+ sustained and up to 30A peak. 
+        </p>
+        <p>
+            (Unmuted by default)
+        </p>
+        <video src="schematic-mk2/piano-thing.mp4" controls loop width="100%"></video>
+        <p>
+            If you want to have a look at the firmware, <a href="https://github.com/thaumatichthys/bldc-mk1-fw", target="_blank">here is the github repo.</a> Note that 
+            everything in the "Main" branch is my work while my team members also contributed to the "Communication_With_Mother" branch.
+        </p>
         <!-- <h4>
             PID Controller
         </h4>

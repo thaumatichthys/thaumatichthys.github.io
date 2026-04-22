@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<noscript class="noJS">
+    <div style="font-family: Arial, Helvetica, sans-serif;">
+        <h1 style="color: #303040;">
+            Please enable JavaScript
+        </h1>
+        <p>
+            This site uses JS to run properly, please enable it in your browser
+        </p>
+    </div>
+    <img src="/res/sadface.png" alt="sadface">
+</noscript>
+
+<body>
+    <div hidden id="page-title">
+        Elec 391 Spring 2026
+    </div>
+    <div hidden id="page-content">
+        <div class="includeMathJax"></div>  
+        <p>
+            April 7, 2026
+        </p>
+        <p>
+            In third year of UBC electrical engineering, we had to take a project course worth six credits (twice the normal amount for a course) that was almost like a capstone
+            but just an assigned project. This year, the project was to build a <b>piano playing robot</b>. This would be a device that can play music on a small 54 key keyboard,
+            and some rough requirements were given.
+        </p>
+        <ul>
+            <li>Needs to have solenoids (electromagnetic actuators)</li>
+            <li>Should be able to play chords</li>
+            <li>Can't be a "player piano", so there must not be a solenoid for each key of the piano</li>
+            <li>Needs to play at least one octave</li>
+        </ul>
+        <p>
+            The way this course was structured was that it runs for one semester, and there are groups of six. Each group is initially split into three subteams,
+            for mechanical systems, electrical systems, and software/controls. There was a 50% midterm demo, where each subteam was to come up with a prototype of their respective
+            parts of the robot, and then a 50% integration demo at the end where the whole group is graded on the performance of their entire robot.
+        </p>
+        <p>
+            For this project I was on the mechanical subteam, and as such the stuff I write is from my pov. Also, when I say "we", I mean the collective of the group. Because the requirements were rather unclear, we initially thought 
+            we could purchase prebuilt solenoids for the actuators. Turns out this was not allowed, but the prebuilt solenoid allowed for some "inspiration" from its design.  
+        </p>
+        <img src="jf-0826b.png">
+        <p>
+            We ended up first buying this JF-0826B solenoid
+        </p>
+        <p>
+            So basically for a solenoid, its strength is basically proportional to the \( \frac{d \phi}{dx} \), where \( \phi \) is the magnetic flux through the coil. 
+            With the common reluctance type solenoids, this basically means that it is important to have a high permeability casing around the coils such that the reluctance of
+            the magnetic loop is smaller. There were a couple ideas on how to do this. I think I thought of a design using waterjet cut sheet metal, but eventually a group member
+            came up with using a regular mild steel box section 
+        </p>
+    </div>
+    <script src="/page_template.js"></script>
+</body>

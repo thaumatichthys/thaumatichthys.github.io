@@ -214,6 +214,19 @@ a:active {
 	background-color: #2c2c2c;
 }
 
+/* set parameters for image type */
+img {
+	/* allow image to be moved/centered */
+	display: block;
+	/* set width to 70% of margin-intern width */
+	max-width: 70%;
+	/* keep aspect ratio of the image */
+	max-height: auto;
+	/* center the image */
+	margin-left: auto;
+	margin-right: auto;
+}
+
 .codeBoxInst {
 	background-color: #4c4c64;
 	font-family: 'Cascadia Code', 'courier';
@@ -227,19 +240,6 @@ a:active {
 	line-height: 1.5;
 	pointer-events: none;
 	box-sizing: border-box;
-}
-
-/* set parameters for image type */
-img {
-	/* allow image to be moved/centered */
-	display: block;
-	/* set width to 70% of margin-intern width */
-	max-width: 70%;
-	/* keep aspect ratio of the image */
-	max-height: auto;
-	/* center the image */
-	margin-left: auto;
-	margin-right: auto;
 }
 
 .codeBoxButton {
@@ -326,4 +326,49 @@ img {
   padding: 0.75rem 1rem;
   font-size: 1rem;
   font-weight: 500;
+}
+
+.imgBoxInst {
+	background-color: #ffffff;
+	font-family: inherit;
+	color: #3a3a4a;
+	padding: 10px;
+	width: 100%;
+	border-radius: 10px;
+	outline: 1px solid #c8ccd4;
+	outline-offset: -1px;
+	white-space: pre-wrap;
+	line-height: 1.5;
+	pointer-events: none;
+	box-sizing: border-box;
+}
+
+.imgBoxButton {
+	background-color: #6b99ca;
+	font-family: helvetica;
+	font-weight: 550;
+	color: #ffffff;
+	padding: 10px;
+	width: 100%;
+	border-radius: 10px;
+	outline: 1px solid #3a7abf;
+	outline-offset: -1px;
+	white-space: pre-wrap;
+	line-height: 1.5;
+	cursor: pointer;
+	transition-duration: 125ms;
+	box-sizing: border-box;
+}
+
+.imgBoxButton:hover {
+	background-color: #5aa3f0;
+}
+
+.imgBoxContent {
+	overflow: visible;
+	pointer-events: auto;
+	width: 100%;
+	border-radius: 10px;
+	min-height: fit-content;
+	background-color: #e4e7ed;
 }
