@@ -20,21 +20,31 @@
     <div hidden id="page-content">
         <div class="includeMathJax"></div>
         <p>
-            January 28, 2026
+            April 7, 2026
         </p>
-        <p>
-            Don't mind the terrible drawings, I am drawing these in ms paint with a mouse and keyboard
-        </p>
+        <img src="thumbnail.png">
         <p>
             Recently in a project class, we were tasked with building some kind of motor based servo actuator. It would be way easier and probably more practical to 
             build an H bridge that drives a brushed DC motor along with an encoder and a PID loop to control the position. This would work, but I thought that 
             it would be an interesting challenge to try to build a brushless servo controller that used Field Oriented Control (FOC).
+        </p>
+        <b>
+            I would also like to say that since this was related to school, no prebuilt libraries such as SimpleFOC were used.
+        </b>
+        <p>
+            Aside: please don't mind the terrible drawings that follow, I am drawing these in ms paint with a mouse and keyboard.
         </p>
         <h3>Brushless 3-phase motor</h3>
         <p>
             This kind of motor has a few different names: BLDC motor, three phase brushless motor, permanent magnet synchronous motor, etc. Basically, it consists of an even number 
             of permanant magnets attached to the rotor, and an integer multiple of three number of stator poles. These stator windings are connected in either a delta or a 
             wye configuration, but the same controller can control both delta and wye motors. 
+        </p>
+        <img src="motor-actual.png">
+        <p>
+            For some context, the actual motor I will be using here is this generic 5010-sized 360 Kv BLDC drone motor. The large diameter and low Kv make it a good choice for
+            robotics and other applications that need high torque and low to medium speed. This motor's phase inductance was measured to be around 140 uH, which is very low 
+            compared to actual industrial PMSM motors but is actually on the higher end compared to smaller drone motors.
         </p>
         <img src="motor0.png">
         <p>
@@ -584,148 +594,12 @@ int compute_svpwm_duty_cycle(float alpha, float beta, float* duty_a, float* duty
         </p>
         <video src="schematic-mk2/piano-thing.mp4" controls loop width="100%"></video>
         <p>
-            If you want to have a look at the firmware, <a href="https://github.com/thaumatichthys/bldc-mk1-fw", target="_blank">here is the github repo.</a> Note that 
-            everything in the "Main" branch is my work while my team members also contributed to the "Communication_With_Mother" branch.
-        </p>
-        <!-- <h4>
-            PID Controller
-        </h4>
-        <p>
-            Usually the current loop only runs a PI controller without the D term. Here I am going to go through the math for specifically the D term though.
+            Here is a video of our ELEC391 project in action. I was lucky enough to have a great team for the rest of this project and everyone contributed a lot of time and effort 
+            (and money too, unfortunately).
         </p>
         <p>
-            The D term usually needs a low pass filter, since a pure differentiator will amplify high frequency noise infinitely, which is not good. 
+            I have not currently made the firmware public, but if you would like to see it, feel free to contact me about it somehow!
         </p>
-        <p>
-            The low pass filter we will use is a first order IIR filter, rather similar in functionality to a simple RC low pass filter. This is to reduce the high 
-            frequency noise that the derivative amplifies. The reason we use an IIR filter is because it has a lower group delay than an FIR filter in its passband.
-            The transfer function of such a filter is as follows:
-        </p>
-        
-        <p>
-            I start with the following transfer function in continuous time, for the entire D term:
-        </p>
-        <p>
-            \(
-                H(s) = \frac{K_d s}{1 + \tau s}
-            \)
-        </p>
-        <p>
-            This is basically the ideal derivator (multiply by \( s \)), scaled, and combined with a first order IIR low pass filter,
-        </p>
-        <p>
-            Where \( \tau \) is the time constant. For an RC filter \( \tau \) would be RC. 
-        </p>
-        <p>
-            To make this useful in practice, we need to convert it into the Z domain.
-        </p>
-        <p>
-            We substitute \(
-                s = \frac{2}{T} \frac{z-1}{z+1}
-            \) into H(s) to get H(z), where T is the sampling period.
-        </p>
-        <p>
-            \(
-                H(z) = \frac{K_d \frac{2}{T} \frac{z-1}{z+1}}{\tau \frac{2}{T} \frac{z-1}{z+1} + 1}
-            \)
-        </p>
-        <p>
-            Now we multiply top and bottom by (z+1)
-        </p>
-        <p>
-            \(
-                H(z) = \frac{K_d \frac{2}{T} (z-1)}{\tau \frac{2}{T} (z-1) + (z+1)}
-                = \frac{K_d \frac{2}{T} (z-1)}{z \tau \frac{2}{T} - \tau \frac{2}{T} + z + 1}
-                = \frac{K_d \frac{2}{T} (z-1)}{z (\tau \frac{2}{T} + 1) + (1 - \tau \frac{2}{T})}
-                = \frac{\frac{K_d \frac{2}{T}}{(\tau \frac{2}{T} + 1)} (z-1)}{z + \frac{(1 - \tau \frac{2}{T})}{(\tau \frac{2}{T} + 1)}}
-            \)
-        </p>
-        <p>
-            Define some variables to make this look neater
-        </p>
-        <p>
-            <ul>
-                <li>
-                    \(
-                        b_0 = \frac{K_d \frac{2}{T}}{(\tau \frac{2}{T} + 1)}
-                    \)
-                </li>
-                <li>
-                    \(
-                        b_1 = -b_0 = -\frac{K_d \frac{2}{T}}{(\tau \frac{2}{T} + 1)}
-                    \)
-                </li>
-                <li>
-                    \(
-                        a_0 = 1
-                    \)
-                </li>
-                <li>
-                    \(
-                        a_1 = \frac{1 - \tau \frac{2}{T}}{(\tau \frac{2}{T} + 1)}
-                    \)
-                </li>
-            </ul>
-        </p>
-        <p>
-            And rewrite it as:
-        </p>
-        <p>
-            \(
-                H(z) = \frac{b_0 z + b_1}{a_0 z + a_1}
-            \)
-        </p>
-        <p>
-            And now we divide top and bottom by \( z \) to express everything in terms of \( z^{-1} \)
-        </p>
-        <p>
-            \(
-                H(z) = \frac{b_0 + b_1 z^{-1}}{a_0 + a_1 z^{-1}}
-            \)
-        </p>
-        <p>
-            And \( H(z) = \frac{Y(z)}{X(z)} \), where X(z) is defined as \( \sum_{n=-\infty}^{\infty} x[n] z^{-n} \). Y(z) is similar. The array x[n] is the input data,
-            and y[n] is the output data.
-        </p>
-        <p>
-            Now a difference equation can be written:
-        </p>
-        <p>
-            \(
-                H(z) = \frac{b_0 + b_1 z^{-1}}{a_0 + a_1 z^{-1}} = \frac{Y(z)}{X(z)}
-            \)
-        </p>
-        <p>
-            \(
-                X(z)(b_0 + b_1 z^{-1}) = Y(z)(a_0 + a_1 z^{-1})
-            \)
-        </p>
-        <p>
-            \(
-                x[n] b_0 + x[n-1] b_1 = y[n] a_0 + y[n-1] a_1
-            \)
-        </p>
-        <p>
-            And then the newest output sample y[n] can be isolated trivially
-        </p>
-        <p>
-            \(
-                y[n] = \frac{1}{a_0} (x[n] b_0 + x[n-1] b_1 - y[n-1] a_1)
-            \)
-        </p>
-        <p>
-            And plugging the numbers in,
-        </p>
-        <p>
-            \(
-                y[n] = \frac{K_d \frac{2}{T}}{(\tau \frac{2}{T} + 1)}(x[n] - x[n-1]) - \frac{1 - \tau \frac{2}{T}}{(\tau \frac{2}{T} + 1)} y[n-1]
-            \)
-        </p>
-        <p>
-            \(
-                y[n] = \frac{2 K_d}{(2 \tau + T)}(x[n] - x[n-1]) + \frac{2 \tau - T}{2 \tau + T} y[n-1]
-            \)
-        </p> -->
     </div>
     <script src="/page_template.js"></script>
 </body>
