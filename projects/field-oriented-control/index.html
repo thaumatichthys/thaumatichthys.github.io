@@ -175,7 +175,7 @@
         </p>
         <p>
             This basically results in an applied voltage vector that can be pointed in any direction, and rotated smoothly. Also, a bunch of youtube videos that 
-            try to describe FOC (such as the ones by "GreatScott", "Electronoobs", "I Got Distracted", and probably others) only actually describe SVPWM without going into 
+            try to describe FOC only actually describe SVPWM without going into 
             any actual FOC.
         </p>
         <p>
@@ -366,7 +366,7 @@ int compute_svpwm_duty_cycle(float alpha, float beta, float* duty_a, float* duty
             The name might sound intimidating but it is just a simple formula.
         </p>
         <p>
-            Note that there isn't an inverse Clarke transform. Some FOC block diagrams on the internet will have this, but in my case it is not necessary 
+            Note that in my implementation, there isn't an inverse Clarke transform. Some FOC block diagrams on the internet will have this, but in my case it is not necessary 
             since the SVPWM block natively takes alpha and beta vectors already, and does not need them to be converted into three phase.
         </p>
         <h4>
