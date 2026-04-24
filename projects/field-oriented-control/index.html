@@ -578,7 +578,10 @@ int compute_svpwm_duty_cycle(float alpha, float beta, float* duty_a, float* duty
         </div>
         <p>
             With this new PCB, the current sensing worked well. In hindsight the RP2350 was not a great choice for this project as its ADCs aren't really great, and FOC kind of 
-            relies on the ADCs to get current measurements. It did work good enough however.
+            relies on the ADCs to get current measurements. It did work good enough however. In the future I will most likely use the STM32x4 series. For instance the STM32F405
+            looks basically perfect for FOC, since it has three ADCs capable of much faster sample rate, potentially allowing for oversampling to increase resolution beyond 
+            the advertised 12 bits. STMicro's "advanced control timer", aka TIM1 and TIM8 have also clearly been designed with motor control in mind, and have four output channels
+            that can be synchronized trivially and do centre aligned PWM. Though that is less of an upgrade since the RP2350 can also do that, just with a few more lines of code.
         </p>
         <img src="schematic-mk2/phase-current.png">
         <p>

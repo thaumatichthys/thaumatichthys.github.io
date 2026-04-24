@@ -34,7 +34,7 @@ const string_template = `<!DOCTYPE html>
 					<p><a href="/mainpage/misc/">Misc</a></p>
 				</div>
 				<div class="navbar-top-cell">
-					<p><a href="/mainpage/contact/">Contact</a></p>
+					<p><a href="/mainpage/about/">About</a></p>
 				</div>
 				<div class="navbar-top-cell">
 					<p><a href="/mainpage/disclaimer/">Disclaimer</a></p>

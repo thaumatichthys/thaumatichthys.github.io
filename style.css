@@ -372,3 +372,16 @@ img {
 	min-height: fit-content;
 	background-color: #e4e7ed;
 }
+
+table {
+	border-collapse: collapse;
+	margin: 20px;
+}
+td {
+	border: 1px solid black;
+	padding: 10px;
+	text-align: center;
+}
+
+.col-wide   { width: 50%; }
+.col-entire { width: 100%; }
