@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<noscript class="noJS">
+    <div style="font-family: Arial, Helvetica, sans-serif;">
+        <h1 style="color: #303040;">
+            Please enable JavaScript
+        </h1>
+        <p>
+            This site uses JS to run properly, please enable it in your browser
+        </p>
+    </div>
+    <img src="/res/sadface.png" alt="sadface">
+</noscript>
+
+<body>
+    <div hidden id="page-title">
+        Hi this is an article 
+    </div>
+    <div hidden id="page-content">
+        <div class="includeMathJax"></div>
+        <p>
+            May, 2026
+        </p>
+        <p>
+            Make fabry perot antenna. Reasoning: Conventional patch array has long feedlines, FR4 have high loss at 6 GHz, feedline = bad. Fabry perot = no need for long 
+            feedlines since there can be just a few driven patch elements and the rest is done by the metamaterial (!!!) PRS.
+        </p>
+        <p>
+            First I experimented with the unit cell. For the partially reflective surface (PRS), the unit cells should ideally be less than one wavelength across to 
+            reduce the effect of grating lobes. In my case I am designing the antenna for a 200 MHz bandwidth from 5.7 to 5.9 GHz, so a wavelength of around 52mm. In my 
+            case I kind of arbitrarily decided to make the unit cells 20mm across.
+        </p>
+        <p>
+            First I tried a kind of double split-ring shape. This one worked somewhat, but an issue I had with it was that it had somewhat messy resonant poles and its phase 
+            response was kind of weird.
+        </p>
+        <p>
+            I then tried a simple square frame shape. This one had a really smooth phase and magnitude response for S11, and it appeared to have high Q as well. In the case 
+            of the PRS I actually don't want a perfect resonance, but in this case the magnitude of S11 ramped so smoothly that I thought I could simply detune it for the 
+            frequency of interest, and just account for the small phase shift. 
+        </p>
+        <p>
+            For a fabry perot antenna, the gain is a function of the PRS's reflectivity. 
+        </p>
+        <p>
+            \(
+                G = \frac{1 + R}{1 - R}
+            \)
+        </p>
+        <p>
+            baiscally i use ring of 14mm OD, 12mm ID, unit cell pitch = 20mm.
+        </p>
+    </div>
+    <script src="/page_template.js"></script>
+</body>
